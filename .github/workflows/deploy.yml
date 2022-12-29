@@ -7,7 +7,7 @@ on:
     branches:
       - main
 env:
-  CACHE_NAME: mycustomcache
+  CACHE_NAME: cachix-ci-agents
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -28,5 +28,5 @@ jobs:
         run: |
           cachix push $CACHE_NAME ./result
           # --agent is needed due to a regression in Cachix 1.1, which will be fixed in Cachix 1.2
-          cachix deploy activate --agent myagent ./result
+          cachix deploy activate --agent linux ./result
 
