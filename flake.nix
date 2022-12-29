@@ -34,9 +34,9 @@
               linux = cachix-deploy-lib.nixos {
                 imports = [ bootstrapNixOS.module ];
 
-                environment.systemPackages = with pkgs; [ vim ncdu tmux ];
-
                 config = {
+                  environment.systemPackages = with pkgs; [ vim ncdu tmux ];
+                  
                   services.github-runners.cachix = {
                     enable = true;
                     url = "https://github.com/cachix";
