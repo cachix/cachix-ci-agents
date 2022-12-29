@@ -34,8 +34,14 @@
               linux = cachix-deploy-lib.nixos {
                 imports = [ bootstrapNixOS.module ];
 
+                environment.systemPackages = with pkgs; [ vim ncdu tmux ];
+
                 config = {
-                  # here comes all your NixOS configuration
+                  services.github-runners.cachix = {
+                    enable = true;
+                    url = "https://github.com/cachix";
+                    tokenFile = "/etc/secrets/github-runner/cachix.token";
+                  };
                 };
               };
             };
