@@ -37,6 +37,8 @@
                 config = {
                   environment.systemPackages = with pkgs; [ vim ncdu tmux ];
 
+                  nix.trustedUsers = [ "root" "github-runner-cachix" ];
+
                   services.github-runners.cachix = {
                     enable = true;
                     url = "https://github.com/cachix";
