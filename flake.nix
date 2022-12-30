@@ -35,12 +35,13 @@
                 imports = [ bootstrapNixOS.module ];
 
                 config = {
-                  environment.systemPackages = with pkgs; [ vim ncdu tmux cachix ];
+                  environment.systemPackages = with pkgs; [ vim ncdu tmux ];
 
                   services.github-runners.cachix = {
                     enable = true;
                     url = "https://github.com/cachix";
                     tokenFile = "/etc/secrets/github-runner/cachix.token";
+                    extraPackages = [ pkgs.cachix ];
                   };
                 };
               };
