@@ -39,6 +39,8 @@
 
                   nix.trustedUsers = [ "root" "github-runner-cachix" ];
 
+                  systemd.services.github-runner-cachix.serviceConfig.ReadWritePaths = [ "/nix/var/nix/profiles/per-user/" ];
+
                   services.github-runners.cachix = {
                     enable = true;
                     url = "https://github.com/cachix";
