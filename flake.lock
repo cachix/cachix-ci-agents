@@ -9,11 +9,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1672744966,
-        "narHash": "sha256-vYfG7GEJCtbEd7Z1Mno+aDz4ewir0NjP1bmv9S3Bf1U=",
+        "lastModified": 1672757252,
+        "narHash": "sha256-OXabjqXMyqUM/K6ub5O0aYj2diZnq/+rDueXJkIqF5Y=",
         "owner": "cachix",
         "repo": "cachix-deploy-flake",
-        "rev": "c2024e847e6841953a2d5da876d1febdba637a96",
+        "rev": "89eaf82accd51297b15b30da0e2bcbdb617f5913",
         "type": "github"
       },
       "original": {
