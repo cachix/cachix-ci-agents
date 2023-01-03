@@ -5,6 +5,7 @@
     pkgs.vim
     pkgs.git
     pkgs.cachix
+    pkgs.tmux
   ];
 
   nix.extraOptions = ''
