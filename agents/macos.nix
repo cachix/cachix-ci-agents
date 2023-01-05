@@ -26,4 +26,5 @@
   # for some reason manual isn't reproducible so we disable it
   documentation.man.enable = lib.mkForce false;
   documentation.info.enable = lib.mkForce false;
+  documentation.doc.enable = lib.mkForce false;
 }
