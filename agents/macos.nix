@@ -1,12 +1,7 @@
 { pkgs, lib, ... }:
 
 {
-  environment.systemPackages = [ 
-    pkgs.vim
-    pkgs.git
-    pkgs.cachix
-    pkgs.tmux
-  ];
+  imports = [ ../common.nix ];
 
   nix.extraOptions = ''
     experimental-features = flakes nix-command

@@ -1,11 +1,5 @@
 { pkgs, ... }: {
-  environment.systemPackages = with pkgs; [ 
-    vim 
-    ncdu 
-    git
-    tmux 
-    cachix
-  ];
+  imports = [ ../common.nix ];
 
   system.stateVersion = "22.11";
 
