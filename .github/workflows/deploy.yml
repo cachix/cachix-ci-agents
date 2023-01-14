@@ -40,5 +40,4 @@ jobs:
       - name: Deploy
         env:
           CACHIX_ACTIVATE_TOKEN: "${{ secrets.CACHIX_ACTIVATE_TOKEN }}"
-        # --agent is needed due to a regression in Cachix 1.1, which will be fixed in Cachix 1.2
-        run: cachix deploy activate --agent linux --agent macos ./result
+        run: cachix deploy activate ./result
