@@ -1,7 +1,7 @@
 { pkgs, ... }: {
   imports = [ ../common.nix ];
 
-
+  # belong to cachix-deploy-flake
   boot.initrd.availableKernelModules = [ "md_mod" "raid1" ];
 
   system.stateVersion = "22.11";
