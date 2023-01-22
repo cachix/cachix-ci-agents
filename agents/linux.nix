@@ -1,6 +1,9 @@
 { pkgs, ... }: {
   imports = [ ../common.nix ];
 
+
+  boot.initrd.availableKernelModules = [ "md_mod" "raid1" ];
+
   system.stateVersion = "22.11";
 
   nix.settings.trusted-users = [ "root" "github-runner-cachix-linux" ];
