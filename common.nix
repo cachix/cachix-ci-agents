@@ -7,4 +7,9 @@ environment.systemPackages = with pkgs; [
     tmux 
     cachix
   ];
+
+nix.extraOptions = ''
+  min-free = ${toString (5 * 1024 * 1024 * 1024)}
+  max-free = ${toString (20 * 1024 * 1024 * 1024)}
+'';
 }
