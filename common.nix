@@ -6,6 +6,7 @@ environment.systemPackages = with pkgs; [
     git
     tmux 
     cachix
+    direnv
   ];
 
 nix.extraOptions = ''

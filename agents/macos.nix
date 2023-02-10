@@ -13,6 +13,9 @@
 
   # required on M1
   programs.zsh.enable = true;
+  programs.zsh.interactiveShellInit = ''
+    eval "$(direnv hook zsh)"
+  '';
 
   # Auto upgrade nix package and the daemon service.
   services.nix-daemon.enable = true;
