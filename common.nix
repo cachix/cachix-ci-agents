@@ -2,7 +2,8 @@
 {
 environment.systemPackages = with pkgs; [ 
     vim 
-    ncdu 
+    # zig broken on darwin
+    #ncdu 
     git
     tmux 
     cachix
