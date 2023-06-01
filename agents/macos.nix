@@ -19,7 +19,6 @@
 
   # Auto upgrade nix package and the daemon service.
   services.nix-daemon.enable = true;
-  nix.package = pkgs.nix;
 
   # for some reason manual isn't reproducible so we disable it
   documentation.man.enable = lib.mkForce false;
