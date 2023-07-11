@@ -16,7 +16,7 @@
       forAllSystems = lib.genAttrs ["x86_64-linux" "aarch64-darwin"];
       common = system: rec {
         # nodejs is needed for github-runner, will be fixed in the next release
-        pkgs = import nixpkgs { inherit system; config = {permittedInsecurePackages = [ "nodejs-16.20.0" ];};};
+        pkgs = import nixpkgs { inherit system; config = {permittedInsecurePackages = [ "nodejs-16.20.1" ];};};
         cachix-deploy-lib = cachix-deploy-flake.lib pkgs;
         bootstrapNixOS = cachix-deploy-lib.bootstrapNixOS { 
           system = system; 
