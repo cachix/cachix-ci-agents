@@ -1,7 +1,7 @@
 { pkgs, ... }:
 
 {
-  nix.package = pkgs.nixUnstable;
+  nix.package = pkgs.nixVersions.nix_2_16;
   nix.extraOptions = ''
     min-free = ${toString (5 * 1024 * 1024 * 1024)}
     max-free = ${toString (20 * 1024 * 1024 * 1024)}

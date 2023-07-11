@@ -3,7 +3,7 @@
 
   inputs = {
     cachix-deploy-flake.url = "github:cachix/cachix-deploy-flake";
-    devenv.url = "github:cachix/devenv/v0.6";
+    devenv.url = "github:cachix/devenv/latest";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.05";
   };
 
