@@ -18,7 +18,12 @@
       forAllSystems = lib.genAttrs ["x86_64-linux" "aarch64-darwin"];
       common = system: rec {
         # nodejs is needed for github-runner, will be fixed in the next release
-        pkgs = import nixpkgs { inherit system; config = {permittedInsecurePackages = [ "nodejs-16.20.1" ];};};
+        pkgs = import nixpkgs { 
+          inherit system; 
+          config = {
+            permittedInsecurePackages = [ "nodejs-16.20.1" ];
+          };
+        };
         cachix-deploy-lib = cachix-deploy-flake.lib pkgs;
         bootstrapNixOS = cachix-deploy-lib.bootstrapNixOS { 
           system = system; 
@@ -28,8 +33,10 @@
         };
       };
       aarch64-linux-modules = [
+        srvos.nixosModules.hardware-hetzner-cloud
         srvos.nixosModules.server
         disko.nixosModules.disko
+        ./agents/linux.nix
         (import ./disko-hetzner-cloud.nix { disks = [ "/dev/sda" ]; })
         {  
           services.cachix-agent.enable = true;
@@ -38,7 +45,7 @@
           networking.hostName = "aarch64-linux";
           users.users.root.openssh.authorizedKeys.keys = [ sshPubKey ];
           services.openssh.enable = true;
-          services.openssh.permitRootLogin = "without-password";
+          services.openssh.settings.PermitRootLogin = "without-password";
       }];
     in {
       nixosConfigurations.${linuxMachineName} = (common "x86_64-linux").bootstrapNixOS.nixos;

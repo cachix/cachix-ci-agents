@@ -12,12 +12,12 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [[ubuntu-latest], [self-hosted, macOS]]
+        os: [[ubuntu-latest], [self-hosted, macOS], [self-hosted, Linux, ARM64]]
     runs-on: ${{ matrix.os }}
     steps:
       - run: sudo rm -rf /opt&
       - uses: actions/checkout@v3
-      - uses: cachix/install-nix-action@v20
+      - uses: cachix/install-nix-action@v22
       - uses: cachix/cachix-action@v12
         with:
           name: "${{ env.CACHE_NAME }}"
@@ -30,7 +30,7 @@ jobs:
     runs-on: [ubuntu-latest]
     steps:
       - uses: actions/checkout@v3
-      - uses: cachix/install-nix-action@v20
+      - uses: cachix/install-nix-action@v22
       - uses: cachix/cachix-action@v12
         with:
           name: "${{ env.CACHE_NAME }}"
