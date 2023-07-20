@@ -1,22 +1,71 @@
-{ pkgs, ... }: {
+{ pkgs, ... }: 
+
+let 
+  name = "cachix-${pkgs.stdenv.system}";
+in {
   imports = [ ../common.nix ];
 
-  # belong to cachix-deploy-flake
-  #boot.initrd.availableKernelModules = [ "md_mod" "raid1" ];
+  nix.settings.trusted-users = [ "root" "github-runner" ];
+  nix.extraOptions = "extra-experimental-features = flakes nix-command";
 
-  #system.stateVersion = "22.11";
+  # create group github-runners
+  users.groups.github-runner = {};
 
-  nix.settings.trusted-users = [ "root" "github-runner-cachix-${pkgs.stdenv.system}" ];
-  nix.extraOptions = ''
-     extra-experimental-features = flakes nix-command
-  '';
+  users.users.github-runner.group = "github-runner";
+  users.users.github-runner.isNormalUser = true;
+  # Software like openssh executes getpwuid to get user's home.
+  # because they won't want you to exploit setting $HOME.
+  # On the other hand, systemd DynamicUser=1 sets it to /, which results into ... 
+  # a lot of confusion.
+  # we set home entry in nss to match $HOME
+  users.users.github-runner.home = "/run/github-runner/${name}";
 
-  systemd.services."github-runner-cachix-${pkgs.stdenv.system}".serviceConfig.ReadWritePaths = [ "/nix/var/nix/profiles/per-user/" ];
-
-  services.github-runners."cachix-${pkgs.stdenv.system}" = {
+  services.github-runners.${name} = {
     enable = true;
     url = "https://github.com/cachix";
+    user = "github-runner";
     tokenFile = "/etc/secrets/github-runner/cachix.token";
-    extraPackages = [ pkgs.cachix ];
+    serviceOverrides = {
+      # needed for Cachix installation to work
+      ReadWritePaths = [ "/nix/var/nix/profiles/per-user/" ];
+
+      # Allow writing to $HOME
+      ProtectHome = "tmpfs";
+    };
+    extraPackages = with pkgs; [ 
+      # custom
+        cachix 
+        tmate
+        jq
+        # nixos
+        openssh
+        coreutils-full
+        bashInteractive # bash with ncurses support
+        bzip2
+        cpio
+        curl
+        diffutils
+        findutils
+        gawk
+        stdenv.cc.libc
+        getent
+        getconf
+        gnugrep
+        gnupatch
+        gnused
+        gnutar
+        gzip
+        xz
+        less
+        ncurses
+        netcat
+        mkpasswd
+        procps
+        time
+        zstd
+        util-linux
+        which
+        nixos-rebuild
+    ];
   };
 }
