@@ -6,7 +6,7 @@
     devenv.url = "github:cachix/devenv/latest";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.05";
     srvos.url = "github:numtide/srvos"; 
-    disko.url = "github:nix-community/disko";
+    disko.url = "github:nix-community/disko/aeebdc1156c1ef6cb1e8f75c3f53bc34f33fad6f";
   };
 
   outputs = { self, devenv, nixpkgs, cachix-deploy-flake, srvos, disko, ... }: 
@@ -25,10 +25,14 @@
           };
         };
         cachix-deploy-lib = cachix-deploy-flake.lib pkgs;
-        bootstrapNixOS = cachix-deploy-lib.bootstrapNixOS { 
+        bootstrapNixOS = 
+          let 
+            grubDevices = [ "/dev/nvme0n1"  "/dev/nvme1n1" ];
+          in cachix-deploy-lib.bootstrapNixOS { 
           system = system; 
           hostname = linuxMachineName;
-          grubDevices = [ "/dev/nvme0n1"  "/dev/nvme1n1" ];
+          diskoDevices = import "${disko}/example/mdadm.nix" { disks = grubDevices; };
+          inherit grubDevices;
           sshPubKey = sshPubKey;
         };
       };
@@ -62,6 +66,10 @@
         in lib.optionalAttrs (system == "x86_64-linux") {
             linux = cachix-deploy-lib.nixos {
               imports = [ bootstrapNixOS.module ./agents/linux.nix ];
+
+              # TODO: This should also be set for bootstrapping
+              boot.loader.grub.efiSupport = lib.mkForce false;
+              boot.loader.grub.efiInstallAsRemovable = lib.mkForce false;
               
               environment.systemPackages = [ devenv.packages.x86_64-linux.devenv ];
             };

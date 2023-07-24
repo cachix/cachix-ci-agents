@@ -88,16 +88,17 @@
         "nixpkgs": "nixpkgs_4"
       },
       "locked": {
-        "lastModified": 1690148072,
-        "narHash": "sha256-R7bk2ij1b06Wc8S3L/guz6Mape5HtKp/YZUyJaxSFa8=",
+        "lastModified": 1689213711,
+        "narHash": "sha256-8WciPYEMz3C7Xt1XIeHl5mh2mnBKOu5P6E7ID9vwaQY=",
         "owner": "nix-community",
         "repo": "disko",
-        "rev": "713eb78002e69bd77f5a69595756fd2e564233f3",
+        "rev": "aeebdc1156c1ef6cb1e8f75c3f53bc34f33fad6f",
         "type": "github"
       },
       "original": {
         "owner": "nix-community",
         "repo": "disko",
+        "rev": "aeebdc1156c1ef6cb1e8f75c3f53bc34f33fad6f",
         "type": "github"
       }
     },
