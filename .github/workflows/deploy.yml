@@ -12,8 +12,12 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [[ubuntu-latest], [self-hosted, macOS], [self-hosted, Linux, ARM64]]
+        os: [[ubuntu-latest], [self-hosted, macOS, ARM64], [self-hosted, Linux, ARM64]]
     runs-on: ${{ matrix.os }}
+    outputs:
+      x86_64-linux: ${{ steps.agent.outputs.x86_64-linux }}
+      aarch64-darwin: ${{ steps.agent.outputs.aarch64-darwin }}
+      aarch64-linux: ${{ steps.agent.outputs.aarch64-linux }}
     steps:
       - run: sudo rm -rf /opt&
       - uses: actions/checkout@v3
@@ -24,6 +28,8 @@ jobs:
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - name: Build 
         run: nix -L flake check
+      - run: echo "$(nix eval --raw --impure --expr 'builtins.currentSystem')=$(nix build --print-out-paths)" >> $GITHUB_OUTPUT
+        id: agent
   deploy:
     if: github.ref == 'refs/heads/main'
     needs: build
@@ -35,9 +41,17 @@ jobs:
         with:
           name: "${{ env.CACHE_NAME }}"
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-      - name: Build 
-        run: nix -L build
       - name: Deploy
         env:
           CACHIX_ACTIVATE_TOKEN: "${{ secrets.CACHIX_ACTIVATE_TOKEN }}"
-        run: cachix deploy activate ./result
+        run: |
+          cat << EOF >> deploy.json
+          {
+            "agents": {
+              "linux": "${{ needs.build.outputs.x86_64-linux }}",
+              "macos": "${{ needs.build.outputs.aarch64-darwin }}",
+              "aarch64-linux": "${{ needs.build.outputs.aarch64-linux }}"
+            }
+          }
+          EOF
+          cachix deploy activate deploy.json

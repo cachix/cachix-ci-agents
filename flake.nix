@@ -80,13 +80,12 @@
           });
 
       packages = forAllSystems (system: {
-        default = (common system).cachix-deploy-lib.spec {
-          agents = {
-            linux = self.checks."x86_64-linux".linux;
-            macos = self.checks."aarch64-darwin".macos;
-            aarch64-linux = self.checks."aarch64-linux".aarch64-linux;
-          };
-        };
+        default = 
+          if system == "x86_64-linux"
+          then self.checks."x86_64-linux".linux
+          else if system == "aarch64-darwin"
+               then self.checks."aarch64-darwin".macos
+               else self.checks."aarch64-linux".aarch64-linux;
       });
 
       devShells = forAllSystems (system:
