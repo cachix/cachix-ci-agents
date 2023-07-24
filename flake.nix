@@ -51,6 +51,7 @@
       nixosConfigurations.${linuxMachineName} = (common "x86_64-linux").bootstrapNixOS.nixos;
       nixosConfigurations."aarch64-linux" = lib.nixosSystem {
         system = "aarch64-linux";
+        pkgs = (common "aarch64-linux").pkgs;
         modules = aarch64-linux-modules;
       };
 
