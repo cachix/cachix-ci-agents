@@ -21,7 +21,7 @@
         pkgs = import nixpkgs { 
           inherit system; 
           config = {
-            permittedInsecurePackages = [ "nodejs-16.20.1" ];
+            permittedInsecurePackages = [ "nodejs-16.20.2" ];
           };
         };
         cachix-deploy-lib = cachix-deploy-flake.lib pkgs;
