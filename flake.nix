@@ -81,12 +81,15 @@
           cachix-deploy-lib = cachix-deploy-flake.lib pkgs;
         in lib.optionalAttrs (system == "x86_64-linux") {
             linux = cachix-deploy-lib.nixos {
-              imports = [ bootstrapNixOS.module ./agents/linux.nix ];
+              imports = [
+                unstableGitHubRunnerModule
+                bootstrapNixOS.module ./agents/linux.nix
+              ];
 
               # TODO: This should also be set for bootstrapping
               boot.loader.grub.efiSupport = lib.mkForce false;
               boot.loader.grub.efiInstallAsRemovable = lib.mkForce false;
-              
+
               environment.systemPackages = [ devenv.packages.x86_64-linux.devenv ];
             };
           } // lib.optionalAttrs (system == "aarch64-linux") {
