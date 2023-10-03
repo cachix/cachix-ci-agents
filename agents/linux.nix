@@ -1,13 +1,9 @@
-{ pkgs, ... }: 
+{ pkgs, ... }:
 
 let
   name = "cachix-${pkgs.stdenv.system}";
 in {
-  disabledModules = [ "services/continuous-integration/github-runners.nix" ];
-  imports = [
-    ../common.nix
-    "${pkgs.unstable}/nixos/modules/services/continuous-integration/github-runners.nix"
-  ];
+  imports = [ ../common.nix ];
 
   nix.settings.trusted-users = [ "root" "github-runner" ];
   nix.extraOptions = "extra-experimental-features = flakes nix-command";
