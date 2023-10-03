@@ -1,9 +1,13 @@
 { pkgs, ... }: 
 
-let 
+let
   name = "cachix-${pkgs.stdenv.system}";
 in {
-  imports = [ ../common.nix ];
+  disabledModules = [ "services/continuous-integration/github-runners.nix" ];
+  imports = [
+    ../common.nix
+    "${pkgs.unstable}/nixos/modules/services/continuous-integration/github-runners.nix"
+  ];
 
   nix.settings.trusted-users = [ "root" "github-runner" ];
   nix.extraOptions = "extra-experimental-features = flakes nix-command";
@@ -25,6 +29,7 @@ in {
     url = "https://github.com/cachix";
     user = "github-runner";
     tokenFile = "/etc/secrets/github-runner/cachix.token";
+    nodeRuntimes = [ "node16" "node20" ];
     serviceOverrides = {
       # needed for Cachix installation to work
       ReadWritePaths = [ "/nix/var/nix/profiles/per-user/" ];
