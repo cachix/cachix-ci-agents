@@ -22,33 +22,43 @@
         permittedInsecurePackages = [ "nodejs-16.20.2" ];
       };
       common = system: rec {
+        unstablePkgs = import nixpkgs-unstable { inherit config system; };
         pkgs = import nixpkgs {
           inherit config system;
-          overlays = [
-            (final: prev: {
-              unstable = import nixpkgs-unstable { inherit config system; };
-            })
-          ];
+          overlays = [ (final: prev: {
+            github-runner = unstablePkgs.github-runner;
+          })];
         };
         cachix-deploy-lib = cachix-deploy-flake.lib pkgs;
-        bootstrapNixOS = 
-          let 
+        bootstrapNixOS =
+          let
             grubDevices = [ "/dev/nvme0n1"  "/dev/nvme1n1" ];
-          in cachix-deploy-lib.bootstrapNixOS { 
-          system = system; 
+          in cachix-deploy-lib.bootstrapNixOS {
+          system = system;
           hostname = linuxMachineName;
           diskoDevices = import "${disko}/example/mdadm.nix" { disks = grubDevices; };
           inherit grubDevices;
           sshPubKey = sshPubKey;
         };
       };
+      unstableGitHubRunnerModule = {...}: {
+        disabledModules = [
+          "services/continuous-integration/github-runner.nix"
+          "services/continuous-integration/github-runners.nix"
+        ];
+        imports = [
+          "${nixpkgs-unstable}/nixos/modules/services/continuous-integration/github-runner.nix"
+          "${nixpkgs-unstable}/nixos/modules/services/continuous-integration/github-runners.nix"
+        ];
+      };
       aarch64-linux-modules = [
         srvos.nixosModules.hardware-hetzner-cloud
         srvos.nixosModules.server
         disko.nixosModules.disko
+        unstableGitHubRunnerModule
         ./agents/linux.nix
         (import ./disko-hetzner-cloud.nix { disks = [ "/dev/sda" ]; })
-        {  
+        {
           services.cachix-agent.enable = true;
           boot.loader.systemd-boot.enable = true;
           boot.loader.efi.canTouchEfiVariables = true;
@@ -71,12 +81,15 @@
           cachix-deploy-lib = cachix-deploy-flake.lib pkgs;
         in lib.optionalAttrs (system == "x86_64-linux") {
             linux = cachix-deploy-lib.nixos {
-              imports = [ bootstrapNixOS.module ./agents/linux.nix ];
+              imports = [
+                unstableGitHubRunnerModule
+                bootstrapNixOS.module ./agents/linux.nix
+              ];
 
               # TODO: This should also be set for bootstrapping
               boot.loader.grub.efiSupport = lib.mkForce false;
               boot.loader.grub.efiInstallAsRemovable = lib.mkForce false;
-              
+
               environment.systemPackages = [ devenv.packages.x86_64-linux.devenv ];
             };
           } // lib.optionalAttrs (system == "aarch64-linux") {
