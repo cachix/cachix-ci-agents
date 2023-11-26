@@ -1,0 +1,30 @@
+name: Bump Flake inputs
+
+on:
+  schedule:
+    - cron: '0 6 1,16 * *' # Twice a month (1st and 16th) at 6am.
+
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bump Flake inputs
+        run: nix flake update --commit-lock-file
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          title: Bump Flake inputs
+          branch: automated/bump-flake-inputs
+          labels: |
+            dependencies
+            automated
