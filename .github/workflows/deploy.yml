@@ -1,4 +1,5 @@
 name: Build & Deploy
+
 on:
   push:
     branches:
@@ -6,8 +7,10 @@ on:
   pull_request:
     branches:
       - main
+
 env:
   CACHE_NAME: cachix-ci-agents
+
 jobs:
   build:
     strategy:
@@ -20,30 +23,31 @@ jobs:
       aarch64-linux: ${{ steps.agent.outputs.aarch64-linux }}
     steps:
       - run: sudo rm -rf /opt&
-      - uses: actions/checkout@v3
-      - uses: cachix/install-nix-action@v22
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v23
       - uses: cachix/cachix-action@v12
         with:
-          name: "${{ env.CACHE_NAME }}"
-          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+          name: ${{ env.CACHE_NAME }}
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
       - name: Build 
         run: nix -L flake check
       - run: echo "$(nix eval --raw --impure --expr 'builtins.currentSystem')=$(nix build --print-out-paths)" >> $GITHUB_OUTPUT
         id: agent
+
   deploy:
     if: github.ref == 'refs/heads/main'
     needs: build
     runs-on: [ubuntu-latest]
     steps:
-      - uses: actions/checkout@v3
-      - uses: cachix/install-nix-action@v22
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v23
       - uses: cachix/cachix-action@v12
         with:
-          name: "${{ env.CACHE_NAME }}"
-          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+          name: ${{ env.CACHE_NAME }}
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
       - name: Deploy
         env:
-          CACHIX_ACTIVATE_TOKEN: "${{ secrets.CACHIX_ACTIVATE_TOKEN }}"
+          CACHIX_ACTIVATE_TOKEN: ${{ secrets.CACHIX_ACTIVATE_TOKEN }}
         run: |
           cat << EOF >> deploy.json
           {
