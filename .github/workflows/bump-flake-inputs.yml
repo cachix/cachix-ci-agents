@@ -19,13 +19,9 @@ jobs:
       - uses: cachix/install-nix-action@v23
 
       - name: Bump Flake inputs
-        run: nix flake update --commit-lock-file
-
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
+        uses: DeterminateSystems/update-flake-lock@main
         with:
-          title: Bump Flake inputs
-          branch: automated/bump-flake-inputs
-          labels: |
+          pr-title: "Bump Flake inputs"
+          pr-labels: |
             dependencies
             automated
