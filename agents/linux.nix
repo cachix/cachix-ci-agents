@@ -25,7 +25,6 @@ in {
     url = "https://github.com/cachix";
     user = "github-runner";
     tokenFile = "/etc/secrets/github-runner/cachix.token";
-    nodeRuntimes = [ "node16" "node20" ];
     serviceOverrides = {
       # needed for Cachix installation to work
       ReadWritePaths = [ "/nix/var/nix/profiles/per-user/" ];
