@@ -17,14 +17,10 @@
 
       lib = nixpkgs.lib;
       forAllSystems = lib.genAttrs ["x86_64-linux" "aarch64-darwin" "aarch64-linux"];
-      config =  {
-        # nodejs is needed for github-runner, will be fixed in the next release
-        permittedInsecurePackages = [ "nodejs-16.20.2" ];
-      };
       common = system: rec {
-        unstablePkgs = import nixpkgs-unstable { inherit config system; };
+        unstablePkgs = import nixpkgs-unstable { inherit system; };
         pkgs = import nixpkgs {
-          inherit config system;
+          inherit system;
           overlays = [ (final: prev: {
             github-runner = unstablePkgs.github-runner;
           })];
