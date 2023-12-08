@@ -25,7 +25,7 @@
           in cachix-deploy-lib.bootstrapNixOS {
           system = system;
           hostname = linuxMachineName;
-          diskoDevices = import "${disko}/example/mdadm.nix" { disks = grubDevices; };
+          diskoDevices = import ./disko-mdadm.nix { disks = grubDevices; };
           inherit grubDevices;
           sshPubKey = sshPubKey;
         };
