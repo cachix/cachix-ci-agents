@@ -33,12 +33,12 @@
       aarch64-linux-modules = [
         srvos.nixosModules.hardware-hetzner-cloud
         srvos.nixosModules.server
+        srvos.nixosModules.mixins-systemd-boot
         disko.nixosModules.disko
         ./agents/linux.nix
         (import ./disko-hetzner-cloud.nix { disks = [ "/dev/sda" ]; })
         {
           services.cachix-agent.enable = true;
-          boot.loader.systemd-boot.enable = true;
           boot.loader.efi.canTouchEfiVariables = true;
           networking.hostName = "aarch64-linux";
           users.users.root.openssh.authorizedKeys.keys = [ sshPubKey ];
