@@ -65,10 +65,9 @@
         modules = aarch64-linux-modules;
       };
 
-      checks = forAllSystems (system: 
-        let 
-          inherit (common system) pkgs bootstrapNixOS;
-          cachix-deploy-lib = cachix-deploy-flake.lib pkgs;
+      checks = forAllSystems (system:
+        let
+          inherit (common system) bootstrapNixOS cachix-deploy-lib;
         in lib.optionalAttrs (system == "x86_64-linux") {
             linux = cachix-deploy-lib.nixos {
               imports = [
@@ -95,14 +94,9 @@
             };
           });
 
-      packages = forAllSystems (system: {
-        default = 
-          if system == "x86_64-linux"
-          then self.checks."x86_64-linux".linux
-          else if system == "aarch64-darwin"
-               then self.checks."aarch64-darwin".macos
-               else self.checks."aarch64-linux".aarch64-linux;
-      });
+      packages.x86_64-linux.default = self.checks.x86_64-linux.linux;
+      packages.aarch64-linux.default = self.checks.aarch64-linux.aarch64-linux;
+      packages.aarch64-darwin.default = self.checks.aarch64-darwin.macos;
 
       devShells = forAllSystems (system:
         let
