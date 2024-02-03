@@ -75,7 +75,7 @@
             aarch64-linux = cachix-deploy-lib.nixos {
               imports = aarch64-linux-modules;
 
-              services.github-runners."cachix-${pkgs.stdenv.system}".extraPackages = [ devenv.packages.x86_64-linux.devenv ];
+              services.github-runners."cachix-${pkgs.stdenv.system}".extraPackages = [ devenv.packages.aarch64-linux.devenv ];
 
               environment.systemPackages = [ devenv.packages.aarch64-linux.devenv ];
             };
