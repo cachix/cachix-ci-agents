@@ -8,10 +8,13 @@ in {
   nix.settings.trusted-users = [ "root" "github-runner" ];
   nix.extraOptions = "extra-experimental-features = flakes nix-command";
 
+  virtualisation.docker.enable = true;
+
   # create group github-runners
   users.groups.github-runner = {};
 
   users.users.github-runner.group = "github-runner";
+  users.users.github-runner.extraGroups = [ "docker" ];
   users.users.github-runner.isNormalUser = true;
   # Software like openssh executes getpwuid to get user's home.
   # because they won't want you to exploit setting $HOME.
@@ -38,6 +41,7 @@ in {
         tmate
         jq
         # nixos
+        docker
         openssh
         coreutils-full
         bashInteractive # bash with ncurses support
