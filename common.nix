@@ -7,14 +7,13 @@
     max-free = ${toString (20 * 1024 * 1024 * 1024)}
   '';
 
-  environment.systemPackages = with pkgs; [ 
-    vim 
+  environment.systemPackages = with pkgs; [
+    vim
     # zig broken on darwin
-    #ncdu 
+    # ncdu
     git
-    tmux 
+    tmux
     cachix
     direnv
   ];
-
 }
