@@ -75,6 +75,9 @@
             aarch64-linux = cachix-deploy-lib.nixos {
               imports = aarch64-linux-modules;
 
+              # try to limit memory usage
+              nix.settings.max-jobs = 8;
+
               services.github-runners."cachix-${pkgs.stdenv.system}".extraPackages = [ devenv.packages.aarch64-linux.devenv ];
 
               environment.systemPackages = [ devenv.packages.aarch64-linux.devenv ];
