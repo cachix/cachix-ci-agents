@@ -30,9 +30,13 @@ jobs:
           name: ${{ env.CACHE_NAME }}
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
       - name: Build
-        run: nix -L flake check
-      - run: echo "$(nix eval --raw --impure --expr 'builtins.currentSystem')=$(nix build --print-out-paths)" >> $GITHUB_OUTPUT
         id: agent
+        run: |
+          system=$(nix eval --raw --impure --expr 'builtins.currentSystem')
+          echo "Building machine for $system"
+          out_path=$(nix build -L --print-out-paths --accept-flake-config)
+          echo "Built $out_path"
+          echo "$system=$out_path" >> $GITHUB_OUTPUT
 
   deploy:
     if: github.ref == 'refs/heads/main'
