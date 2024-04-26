@@ -30,8 +30,7 @@ jobs:
           name: ${{ env.CACHE_NAME }}
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
       - name: Build
-        run: nix -L flake check
-      - run: echo "$(nix eval --raw --impure --expr 'builtins.currentSystem')=$(nix build --print-out-paths)" >> $GITHUB_OUTPUT
+        run: echo "$(nix eval --raw --impure --expr 'builtins.currentSystem')=$(nix build -L --print-out-paths)" >> $GITHUB_OUTPUT
         id: agent
 
   deploy:

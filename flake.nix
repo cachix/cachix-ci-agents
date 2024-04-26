@@ -16,6 +16,7 @@
 
       lib = nixpkgs.lib;
       forAllSystems = lib.genAttrs ["x86_64-linux" "aarch64-darwin" "aarch64-linux"];
+
       common = system: rec {
         pkgs = nixpkgs.legacyPackages.${system};
         cachix-deploy-lib = cachix-deploy-flake.lib pkgs;
@@ -30,6 +31,7 @@
           sshPubKey = sshPubKey;
         };
       };
+
       aarch64-linux-modules = [
         srvos.nixosModules.hardware-hetzner-cloud
         srvos.nixosModules.server
@@ -53,51 +55,48 @@
         modules = aarch64-linux-modules;
       };
 
-      checks = forAllSystems (system: 
-        let 
-          inherit (common system) pkgs bootstrapNixOS;
-          cachix-deploy-lib = cachix-deploy-flake.lib pkgs;
-        in lib.optionalAttrs (system == "x86_64-linux") {
-            linux = cachix-deploy-lib.nixos {
-              imports = [
-                bootstrapNixOS.module ./agents/linux.nix
-              ];
+      packages.x86_64-linux.default =
+        let
+          inherit (common "x86_64-linux") cachix-deploy-lib pkgs bootstrapNixOS;
+        in
+        cachix-deploy-lib.nixos {
+          imports = [
+            bootstrapNixOS.module ./agents/linux.nix
+          ];
 
-              # TODO: This should also be set for bootstrapping
-              boot.loader.grub.efiSupport = lib.mkForce false;
-              boot.loader.grub.efiInstallAsRemovable = lib.mkForce false;
+          # TODO: This should also be set for bootstrapping
+          boot.loader.grub.efiSupport = lib.mkForce false;
+          boot.loader.grub.efiInstallAsRemovable = lib.mkForce false;
 
-              services.github-runners."cachix-${pkgs.stdenv.system}".extraPackages = [ devenv.packages.x86_64-linux.devenv ];
+          services.github-runners."cachix-${pkgs.stdenv.system}".extraPackages = [ devenv.packages.x86_64-linux.devenv ];
 
-              environment.systemPackages = [ devenv.packages.x86_64-linux.devenv ];
-            };
-          } // lib.optionalAttrs (system == "aarch64-linux") {
-            aarch64-linux = cachix-deploy-lib.nixos {
-              imports = aarch64-linux-modules;
+          environment.systemPackages = [ devenv.packages.x86_64-linux.devenv ];
+        };
 
-              # try to limit memory usage
-              nix.settings.max-jobs = 8;
+      packages.aarch64-linux.default =
+        let
+          inherit (common "aarch64-linux") cachix-deploy-lib pkgs;
+        in
+        cachix-deploy-lib.nixos {
+          imports = aarch64-linux-modules;
 
-              services.github-runners."cachix-${pkgs.stdenv.system}".extraPackages = [ devenv.packages.aarch64-linux.devenv ];
+          # try to limit memory usage
+          nix.settings.max-jobs = 8;
 
-              environment.systemPackages = [ devenv.packages.aarch64-linux.devenv ];
-            };
-          } // lib.optionalAttrs (system == "aarch64-darwin") {
-            macos = cachix-deploy-lib.darwin {
-              imports = [ ./agents/macos.nix ];
+          services.github-runners."cachix-${pkgs.stdenv.system}".extraPackages = [ devenv.packages.aarch64-linux.devenv ];
 
-              environment.systemPackages = [ devenv.packages.aarch64-darwin.devenv ];
-            };
-          });
+          environment.systemPackages = [ devenv.packages.aarch64-linux.devenv ];
+        };
 
-      packages = forAllSystems (system: {
-        default = 
-          if system == "x86_64-linux"
-          then self.checks."x86_64-linux".linux
-          else if system == "aarch64-darwin"
-               then self.checks."aarch64-darwin".macos
-               else self.checks."aarch64-linux".aarch64-linux;
-      });
+      packages.aarch64-darwin.default =
+        let
+          inherit (common "aarch64-darwin") cachix-deploy-lib;
+        in
+        cachix-deploy-lib.darwin {
+          imports = [ ./agents/macos.nix ];
+
+          environment.systemPackages = [ devenv.packages.aarch64-darwin.devenv ];
+        };
 
       devShells = forAllSystems (system:
         let
