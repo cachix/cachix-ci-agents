@@ -10,6 +10,17 @@
     disko.url = "github:nix-community/disko";
   };
 
+  nixConfig = {
+    extra-substituters = [
+      "https://cachix-ci-agents.cachix.org"
+      "https://cachix.cachix.org"
+    ];
+    extra-trusted-public-keys = [
+      "cachix-ci-agents.cachix.org-1:qVO9icjGen2UY8QnkygVYKajmjwjp3l6cHUT6t+lkHs="
+      "cachix.cachix.org-1:eWNHQldwUO7G2VkjpnjDbWwy4KQ/HNxht7H4SSoMckM="
+    ];
+  };
+
   outputs = { self, devenv, nixpkgs, cachix-deploy-flake, cachix-flake, srvos, disko, ... }:
     let
       linuxMachineName = "linux";

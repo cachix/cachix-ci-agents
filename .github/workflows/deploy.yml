@@ -34,7 +34,7 @@ jobs:
         run: |
           system=$(nix eval --raw --impure --expr 'builtins.currentSystem')
           echo "Building machine for $system"
-          out_path=$(nix build -L --print-out-paths)
+          out_path=$(nix build -L --print-out-paths --accept-flake-config)
           echo "Built $out_path"
           echo "$system=$out_path" >> $GITHUB_OUTPUT
 
