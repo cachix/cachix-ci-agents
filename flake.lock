@@ -54,15 +54,16 @@
         "pre-commit-hooks": "pre-commit-hooks"
       },
       "locked": {
-        "lastModified": 1712055811,
-        "narHash": "sha256-7FcfMm5A/f02yyzuavJe06zLa9hcMHsagE28ADcmQvk=",
+        "lastModified": 1714564030,
+        "narHash": "sha256-vtWTBCYECddm7wjXbO7d34II36G6xbzC/RG+/51fx2o=",
         "owner": "cachix",
         "repo": "cachix",
-        "rev": "02e38da89851ec7fec3356a5c04bc8349cae0e30",
+        "rev": "cac4e466f1f1e17c743f163f0275a5470343aae6",
         "type": "github"
       },
       "original": {
         "owner": "cachix",
+        "ref": "debug-daemon-stop",
         "repo": "cachix",
         "type": "github"
       }

@@ -4,7 +4,7 @@
   inputs = {
     cachix-deploy-flake.url = "github:cachix/cachix-deploy-flake";
     devenv.url = "github:cachix/devenv/latest";
-    cachix-flake.url = "github:cachix/cachix";
+    cachix-flake.url = "github:cachix/cachix/debug-daemon-stop";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
     srvos.url = "github:numtide/srvos";
     disko.url = "github:nix-community/disko";
