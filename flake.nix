@@ -5,9 +5,15 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
     devenv.url = "github:cachix/devenv/latest";
 
+    darwin = {
+      url = "github:LnL7/nix-darwin";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     cachix-deploy-flake = {
       url = "github:cachix/cachix-deploy-flake";
       inputs.disko.follows = "disko";
+      inputs.darwin.follows = "darwin";
     };
 
     cachix-flake = {

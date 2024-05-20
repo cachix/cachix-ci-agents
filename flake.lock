@@ -32,7 +32,9 @@
     },
     "cachix-deploy-flake": {
       "inputs": {
-        "darwin": "darwin",
+        "darwin": [
+          "darwin"
+        ],
         "disko": [
           "disko"
         ],
@@ -82,16 +84,15 @@
     "darwin": {
       "inputs": {
         "nixpkgs": [
-          "cachix-deploy-flake",
           "nixpkgs"
         ]
       },
       "locked": {
-        "lastModified": 1715871485,
-        "narHash": "sha256-ywapEXmBBI+DVRx/YYC6+6Lk+W8vhShz1uJNvqPKzng=",
+        "lastModified": 1716204319,
+        "narHash": "sha256-3KL5dRGk89SUaeODFO6B9lxymCVav3UzqsNxOzAbwVY=",
         "owner": "LnL7",
         "repo": "nix-darwin",
-        "rev": "cb02884fa1ff5a619a44ab5f1bcc4dedd2d623c2",
+        "rev": "e1cacc63e6e324ae95e65e8aaea62dec74686208",
         "type": "github"
       },
       "original": {
@@ -735,6 +736,7 @@
       "inputs": {
         "cachix-deploy-flake": "cachix-deploy-flake",
         "cachix-flake": "cachix-flake",
+        "darwin": "darwin",
         "devenv": "devenv",
         "disko": "disko",
         "nixpkgs": "nixpkgs_4",
