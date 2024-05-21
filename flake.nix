@@ -2,12 +2,35 @@
   description = "Cachix CI Agents";
 
   inputs = {
-    cachix-deploy-flake.url = "github:cachix/cachix-deploy-flake";
-    devenv.url = "github:cachix/devenv/latest";
-    cachix-flake.url = "github:cachix/cachix/debug-daemon-stop";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
-    srvos.url = "github:numtide/srvos";
-    disko.url = "github:nix-community/disko";
+    devenv.url = "github:cachix/devenv/latest";
+
+    darwin = {
+      url = "github:LnL7/nix-darwin";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    cachix-deploy-flake = {
+      url = "github:cachix/cachix-deploy-flake";
+      inputs.disko.follows = "disko";
+      inputs.darwin.follows = "darwin";
+    };
+
+    cachix-flake = {
+      url = "github:cachix/cachix";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.devenv.follows = "devenv";
+    };
+
+    srvos = {
+      url = "github:numtide/srvos";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   nixConfig = {
