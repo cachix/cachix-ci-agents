@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: cachix/install-nix-action@v25
+      - uses: cachix/install-nix-action@v27
 
       - name: Bump Flake inputs
         uses: DeterminateSystems/update-flake-lock@main
