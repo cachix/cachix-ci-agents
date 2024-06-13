@@ -24,7 +24,7 @@ jobs:
     steps:
       - run: sudo rm -rf /opt&
       - uses: actions/checkout@v4
-      - uses: cachix/install-nix-action@v25
+      - uses: cachix/install-nix-action@v27
       - uses: cachix/cachix-action@v14
         with:
           name: ${{ env.CACHE_NAME }}
@@ -44,7 +44,7 @@ jobs:
     runs-on: [ubuntu-latest]
     steps:
       - uses: actions/checkout@v4
-      - uses: cachix/install-nix-action@v25
+      - uses: cachix/install-nix-action@v27
       - uses: cachix/cachix-action@v14
         with:
           name: ${{ env.CACHE_NAME }}
