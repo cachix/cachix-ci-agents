@@ -72,4 +72,6 @@ in {
         nixos-rebuild
     ];
   };
+
+  system.stateVersion = "23.11";
 }
