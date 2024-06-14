@@ -47,7 +47,10 @@
   outputs = { self, devenv, nixpkgs, cachix-deploy-flake, cachix-flake, srvos, disko, ... }:
     let
       linuxMachineName = "linux";
-      sshPubKey = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC7CTy+OMdA1IfR3EEuL/8c9tWZvfzzDH9cYE1Fq8eFsSfcoFKtb/0tAcUrhYmQMJDV54J7cLvltaoA4MV788uKl+rlqy17rKGji4gC94dvtB9eIH11p/WadgGORnjdiIV1Df29Zmjlm5zqNo2sZUxs0Nya2I4Dpa2tdXkw6piVgMtVrqPCM4W5uorX8CE+ecOUzPOi11lyfCwLcdg0OugXBVrNNSfnJ2/4PrLm7rcG4edbonjWa/FvMAHxN7BBU5+aGFC5okKOi5LqKskRkesxKNcIbsXHJ9TOsiqJKPwP0H2um/7evXiMVjn3/951Yz9Sc8jKoxAbeH/PcCmMOQz+8z7cJXm2LI/WIkiDUyAUdTFJj8CrdWOpZNqQ9WGiYQ6FHVOVfrHaIdyS4EOUG+XXY/dag0EBueO51i8KErrL17zagkeCqtI84yNvZ+L2hCSVM7uDi805Wi9DTr0pdWzh9jKNAcF7DqN16inklWUjtdRZn04gJ8N5hx55g2PAvMYWD21QoIruWUT1I7O9xbarQEfd2cC3yP+63AHlimo9Aqmj/9Qx3sRB7ycieQvNZEedLE9xiPOQycJzzZREVSEN1EK1xzle0Hg6I7U9L5LDD8yXkutvvppFb27dzlr5MTUnIy+reEHavyF9RSNXHTo57myffl8zo2lPjcmFkffLZQ== ielectric@kaki";
+      sshPubKeys = {
+        domen = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC7CTy+OMdA1IfR3EEuL/8c9tWZvfzzDH9cYE1Fq8eFsSfcoFKtb/0tAcUrhYmQMJDV54J7cLvltaoA4MV788uKl+rlqy17rKGji4gC94dvtB9eIH11p/WadgGORnjdiIV1Df29Zmjlm5zqNo2sZUxs0Nya2I4Dpa2tdXkw6piVgMtVrqPCM4W5uorX8CE+ecOUzPOi11lyfCwLcdg0OugXBVrNNSfnJ2/4PrLm7rcG4edbonjWa/FvMAHxN7BBU5+aGFC5okKOi5LqKskRkesxKNcIbsXHJ9TOsiqJKPwP0H2um/7evXiMVjn3/951Yz9Sc8jKoxAbeH/PcCmMOQz+8z7cJXm2LI/WIkiDUyAUdTFJj8CrdWOpZNqQ9WGiYQ6FHVOVfrHaIdyS4EOUG+XXY/dag0EBueO51i8KErrL17zagkeCqtI84yNvZ+L2hCSVM7uDi805Wi9DTr0pdWzh9jKNAcF7DqN16inklWUjtdRZn04gJ8N5hx55g2PAvMYWD21QoIruWUT1I7O9xbarQEfd2cC3yP+63AHlimo9Aqmj/9Qx3sRB7ycieQvNZEedLE9xiPOQycJzzZREVSEN1EK1xzle0Hg6I7U9L5LDD8yXkutvvppFb27dzlr5MTUnIy+reEHavyF9RSNXHTo57myffl8zo2lPjcmFkffLZQ== ielectric@kaki";
+        sander = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO18rhoNZWQZeudtRFBZvJXLkHEshSaEFFt2llG5OeHk hey@sandydoo.me";
+      };
 
       lib = nixpkgs.lib;
       forAllSystems = lib.genAttrs ["x86_64-linux" "aarch64-darwin" "aarch64-linux"];
@@ -70,7 +73,7 @@
           hostname = linuxMachineName;
           diskoDevices = import ./disko-mdadm.nix { disks = grubDevices; };
           inherit grubDevices;
-          sshPubKey = sshPubKey;
+          sshPubKey = sshPubKeys.domen;
         };
       };
 
@@ -85,7 +88,7 @@
           services.cachix-agent.enable = true;
           boot.loader.efi.canTouchEfiVariables = true;
           networking.hostName = "aarch64-linux";
-          users.users.root.openssh.authorizedKeys.keys = [ sshPubKey ];
+          users.users.root.openssh.authorizedKeys.keys = builtins.attrValues sshPubKeys;
           services.openssh.enable = true;
           services.openssh.settings.PermitRootLogin = "without-password";
       }];
@@ -109,6 +112,8 @@
           # TODO: This should also be set for bootstrapping
           boot.loader.grub.efiSupport = lib.mkForce false;
           boot.loader.grub.efiInstallAsRemovable = lib.mkForce false;
+
+          users.users.root.openssh.authorizedKeys.keys = builtins.attrValues sshPubKeys;
 
           services.github-runners."cachix-${pkgs.stdenv.system}".extraPackages = [ devenv.packages.x86_64-linux.devenv ];
 
