@@ -1,0 +1,9 @@
+keys:
+  - &admin_sander age138vqkmsve6sgesskmxefec22h2r0hukhlqlenq3nlgs9tuq3e9yq0xr4le
+  - &server_aarch64_linux age1xs6sg06q2jj93skp6s0advfa666hjxr28c8f5egc2r3fvclwwgzst7uuk0
+creation_rules:
+  - path_regex: secrets\.(yaml|json|env|ini)$
+    key_groups:
+    - age:
+      - *admin_sander
+      - *server_aarch64_linux
