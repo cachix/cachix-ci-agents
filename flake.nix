@@ -4,7 +4,11 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
     devenv.url = "github:cachix/devenv/latest";
-    sops-nix.url = "github:Mic92/sops-nix";
+
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     darwin = {
       url = "github:LnL7/nix-darwin";
