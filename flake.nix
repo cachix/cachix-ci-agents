@@ -2,8 +2,13 @@
   description = "Cachix CI Agents";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
     devenv.url = "github:cachix/devenv/latest";
+
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     darwin = {
       url = "github:LnL7/nix-darwin";
@@ -44,7 +49,7 @@
     ];
   };
 
-  outputs = { self, devenv, nixpkgs, cachix-deploy-flake, cachix-flake, srvos, disko, ... }:
+  outputs = { self, devenv, nixpkgs, cachix-deploy-flake, cachix-flake, srvos, disko, sops-nix, ... }:
     let
       linuxMachineName = "linux";
       sshPubKeys = {
@@ -82,6 +87,7 @@
         srvos.nixosModules.server
         srvos.nixosModules.mixins-systemd-boot
         disko.nixosModules.disko
+        sops-nix.nixosModules.sops
         ./agents/linux.nix
         (import ./disko-hetzner-cloud.nix { disks = [ "/dev/sda" ]; })
         {
@@ -107,6 +113,7 @@
         cachix-deploy-lib.nixos {
           imports = [
             bootstrapNixOS.module ./agents/linux.nix
+            sops-nix.nixosModules.sops
           ];
 
           # TODO: This should also be set for bootstrapping
@@ -152,6 +159,7 @@
         default = pkgs.mkShell {
           buildInputs = [
             cachix-deploy-flake.packages.${system}.bootstrapHetzner
+            pkgs.sops
           ];
         };
       });

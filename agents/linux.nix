@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 
 let
   name = "cachix-${pkgs.stdenv.system}";
@@ -23,11 +23,19 @@ in {
   # we set home entry in nss to match $HOME
   users.users.github-runner.home = "/run/github-runner/${name}";
 
+  sops.defaultSopsFile = ../secrets.yaml;
+  sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
+  sops.age.keyFile = "/var/lib/sops-nix/key.txt";
+  sops.age.generateKey = true;
+
+  sops.secrets.github-runner-token.owner = "github-runner";
+
   services.github-runners.${name} = {
     enable = true;
     url = "https://github.com/cachix";
     user = "github-runner";
-    tokenFile = "/etc/secrets/github-runner/cachix.token";
+    replace = true;
+    tokenFile = config.sops.secrets.github-runner-token.path;
     serviceOverrides = {
       # needed for Cachix installation to work
       ReadWritePaths = [ "/nix/var/nix/profiles/per-user/" ];
