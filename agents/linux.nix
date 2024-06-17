@@ -34,6 +34,7 @@ in {
     enable = true;
     url = "https://github.com/cachix";
     user = "github-runner";
+    replace = true;
     tokenFile = config.sops.secrets.github-runner-token.path;
     serviceOverrides = {
       # needed for Cachix installation to work
