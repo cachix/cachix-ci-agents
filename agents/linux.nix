@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 let
   name = "cachix-${pkgs.stdenv.system}";
@@ -42,6 +42,10 @@ in {
 
       # Allow writing to $HOME
       ProtectHome = "tmpfs";
+
+      # Always restart, which is possible with a PAT.
+      Restart = lib.mkForce "always";
+      RestartSec = "30s";
     };
     extraPackages = with pkgs; [ 
       # custom
