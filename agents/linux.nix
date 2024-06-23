@@ -6,7 +6,6 @@ in {
   imports = [ ../common.nix ];
 
   nix.settings.trusted-users = [ "root" "github-runner" ];
-  nix.extraOptions = "extra-experimental-features = flakes nix-command";
 
   virtualisation.docker.enable = true;
 
