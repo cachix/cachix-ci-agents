@@ -4,6 +4,7 @@
   imports = [ ../common.nix ];
 
   nix.extraOptions = ''
+    always-allow-substitutes = true
     experimental-features = flakes nix-command
   '';
   nix.settings.trusted-users = ["root" "hetzner"];
