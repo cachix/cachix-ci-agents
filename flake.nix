@@ -17,6 +17,7 @@
 
     cachix-deploy-flake = {
       url = "github:cachix/cachix-deploy-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
       inputs.disko.follows = "disko";
       inputs.darwin.follows = "darwin";
     };
