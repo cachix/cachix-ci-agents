@@ -29,6 +29,8 @@ jobs:
         with:
           name: ${{ env.CACHE_NAME }}
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+      - name: Version info
+        run: nix --version
       - name: Build
         id: agent
         run: |
