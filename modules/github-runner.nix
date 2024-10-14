@@ -11,7 +11,7 @@ let
     #!/usr/bin/env bash
     nixconf=$(mktemp "nix.conf.XXXXXX")
     echo "access-tokens = $GITHUB_TOKEN" >> $nixconf
-    echo "NIX_USER_CONF_FILES=$nixconf" >> $GITHUB_ENV
+    echo "NIX_USER_CONF_FILES=$(readlink -f "$nixconf")" >> $GITHUB_ENV
   '';
 in
 {
