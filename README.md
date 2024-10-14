@@ -13,14 +13,22 @@ Make sure to install rosetta: `softwareupdate --install-rosetta --agree-to-licen
 
 Secrets are managed by sops: https://github.com/Mic92/sops-nix
 
-Add a new secret:
+### Add a new secret
 
 ```shell
 sops secrets.yaml
 ```
 
+### Add a new machine or user key
+
 To add a new key, edit `.sops.yaml`, then run:
 
 ```shell
 sops updatekeys secrets.yaml
+```
+
+You can get the key for a machine with `ssh-keyscan`:
+
+```shell
+ssh-keyscan <IP/DOMAIN> | ssh-to-age
 ```

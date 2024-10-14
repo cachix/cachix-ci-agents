@@ -163,6 +163,7 @@
           buildInputs = [
             cachix-deploy-flake.packages.${system}.bootstrapHetzner
             pkgs.sops
+            pkgs.ssh-to-age
           ];
         };
       });
