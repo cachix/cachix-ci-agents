@@ -90,7 +90,7 @@ in
           # Replace an existing runner with the same name, instead of erroring out.
           replace = true;
           extraEnvironment = {
-            ACTIONS_RUNNER_HOOK_JOB_STARTED = preJobScript;
+            ACTIONS_RUNNER_HOOK_JOB_STARTED = toString preJobScript;
           };
           extraPackages =
             with (if cfg.enableRosetta then pkgs.pkgsx86_64Darwin else pkgs);
