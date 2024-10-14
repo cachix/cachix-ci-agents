@@ -44,6 +44,18 @@ in
       default = { };
       description = "Extra service to run on the runner";
     };
+
+    extraPackages = lib.mkOption {
+      type = lib.types.listOf lib.types.package;
+      default = [ ];
+      description = "Extra packages to add to the runner env";
+    };
+
+    extraGroups = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+      description = "Extra groups to add to each github user";
+    };
   };
 
   # create each github runner
@@ -112,7 +124,8 @@ in
               pkgs.attr
               pkgs.libcap
             ]
-            ++ lib.optionals pkgs.stdenv.isDarwin [ ];
+            ++ lib.optionals pkgs.stdenv.isDarwin [ ]
+            ++ cfg.extraPackages;
           serviceOverrides = lib.optionalAttrs pkgs.stdenv.isLinux {
             # needed for Cachix installation to work
             ReadWritePaths = [ "/nix/var/nix/profiles/per-user/" ];
@@ -138,6 +151,7 @@ in
         users = (
           mkRunner (i: {
             group = "github-runner";
+            extraGroups = cfg.extraGroups;
 
             # make sure we don't create home as the runner does
             isSystemUser = true;

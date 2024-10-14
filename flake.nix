@@ -123,7 +123,7 @@
 
           users.users.root.openssh.authorizedKeys.keys = builtins.attrValues sshPubKeys;
 
-          services.github-runners."cachix-${pkgs.stdenv.system}".extraPackages = [ devenv.packages.x86_64-linux.devenv ];
+          cachix.github-runner.extraPackages = [ devenv.packages.x86_64-linux.devenv ];
 
           environment.systemPackages = [ devenv.packages.x86_64-linux.devenv ];
         };
@@ -138,7 +138,7 @@
           # try to limit memory usage
           nix.settings.max-jobs = 8;
 
-          services.github-runners."cachix-${pkgs.stdenv.system}".extraPackages = [ devenv.packages.aarch64-linux.devenv ];
+          cachix.github-runner.extraPackages = [ devenv.packages.aarch64-linux.devenv ];
 
           environment.systemPackages = [ devenv.packages.aarch64-linux.devenv ];
         };
@@ -148,9 +148,14 @@
           inherit (common "aarch64-darwin") cachix-deploy-lib;
         in
         cachix-deploy-lib.darwin {
-          imports = [ ./agents/macos.nix ];
+          imports = [
+            ./agents/macos.nix
+            sops-nix.nixosModules.sops
+          ];
 
           users.users.hetzner.openssh.authorizedKeys.keys = builtins.attrValues sshPubKeys;
+
+          cachix.github-runner.extraPackages = [ devenv.packages.aarch64-darwin.devenv ];
 
           environment.systemPackages = [ devenv.packages.aarch64-darwin.devenv ];
         };

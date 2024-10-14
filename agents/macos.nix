@@ -11,8 +11,6 @@
   networking.hostName = "macos";
   services.cachix-agent.enable = true;
 
-  sops.secrets.github-runner-token.owner = "github-runner";
-
   cachix.github-runner = {
     enable = true;
     count = 2;
