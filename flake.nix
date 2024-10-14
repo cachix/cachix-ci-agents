@@ -170,7 +170,6 @@
           buildInputs = [
             cachix-deploy-flake.packages.${system}.bootstrapHetzner
             agenix.packages.${system}.default
-            pkgs.sops
           ];
         };
       });
