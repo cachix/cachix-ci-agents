@@ -20,6 +20,9 @@
     direnv
   ];
 
-  age.secrets.github-runner-token.file = ../secrets/github-runner-token.age;
-  age.secrets.github-runner-token.group = config.cachix.github-runner.group;
+  age.secrets.github-runner-token = {
+    file = ../secrets/github-runner-token.age;
+    owner = config.cachix.github-runner.group;
+    group = config.cachix.github-runner.group;
+  };
 }
