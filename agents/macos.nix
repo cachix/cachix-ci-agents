@@ -25,4 +25,6 @@
   documentation.man.enable = lib.mkForce false;
   documentation.info.enable = lib.mkForce false;
   documentation.doc.enable = lib.mkForce false;
+
+  system.stateVersion = 5;
 }
