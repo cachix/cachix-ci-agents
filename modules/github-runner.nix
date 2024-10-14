@@ -27,6 +27,12 @@ in
       description = "The file containing the PAT token";
     };
 
+    group = lib.mkOption {
+      type = lib.types.str;
+      description = "The group create and run the runner as";
+      default = "github-runner";
+    };
+
     enableRosetta = lib.mkOption {
       type = lib.types.bool;
       default = false;
@@ -146,11 +152,11 @@ in
       );
 
       users = lib.optionalAttrs pkgs.stdenv.isLinux {
-        groups.github-runner = { };
+        groups.${cfg.group} = { };
 
         users = (
           mkRunner (i: {
-            group = "github-runner";
+            group = cfg.group;
             extraGroups = cfg.extraGroups;
 
             # make sure we don't create home as the runner does

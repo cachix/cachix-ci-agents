@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 
 {
   nix.package = pkgs.nixVersions.nix_2_23;
@@ -21,5 +21,5 @@
   ];
 
   age.secrets.github-runner-token.file = ../secrets/github-runner-token.age;
-  age.secrets.github-runner-token.group = "github-runner";
+  age.secrets.github-runner-token.group = config.cachix.github-runner.group;
 }
