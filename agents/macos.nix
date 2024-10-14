@@ -16,7 +16,7 @@
     count = 2;
     githubOrganization = "cachix";
     namePrefix = "cachix-${pkgs.stdenv.system}";
-    tokenFile = config.sops.secrets.github-runner-token.path;
+    tokenFile = config.age.secrets.github-runner-token.path;
   };
 
   # required on M1

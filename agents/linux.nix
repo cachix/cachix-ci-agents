@@ -14,7 +14,7 @@
     githubOrganization = "cachix";
     namePrefix = "cachix-${pkgs.stdenv.system}";
     extraGroups = [ "docker" ];
-    tokenFile = config.sops.secrets.github-runner-token.path;
+    tokenFile = config.age.secrets.github-runner-token.path;
   };
 
   system.stateVersion = "23.11";

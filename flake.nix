@@ -5,9 +5,11 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
     devenv.url = "github:cachix/devenv/latest";
 
-    sops-nix = {
-      url = "github:Mic92/sops-nix";
+
+    agenix = {
+      url = "github:ryantm/agenix";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.darwin.follows = "darwin";
     };
 
     darwin = {
@@ -50,7 +52,7 @@
     ];
   };
 
-  outputs = { self, devenv, nixpkgs, cachix-deploy-flake, cachix-flake, srvos, disko, sops-nix, ... }:
+  outputs = { self, devenv, nixpkgs, cachix-deploy-flake, cachix-flake, srvos, disko, agenix, ... }:
     let
       linuxMachineName = "linux";
       sshPubKeys = {
@@ -88,7 +90,7 @@
         srvos.nixosModules.server
         srvos.nixosModules.mixins-systemd-boot
         disko.nixosModules.disko
-        sops-nix.nixosModules.sops
+        agenix.nixosModules.default
         ./agents/linux.nix
         (import ./disko-hetzner-cloud.nix { disks = [ "/dev/sda" ]; })
         {
@@ -114,7 +116,7 @@
         cachix-deploy-lib.nixos {
           imports = [
             bootstrapNixOS.module ./agents/linux.nix
-            sops-nix.nixosModules.sops
+            agenix.nixosModules.default
           ];
 
           # TODO: This should also be set for bootstrapping
@@ -150,7 +152,7 @@
         cachix-deploy-lib.darwin {
           imports = [
             ./agents/macos.nix
-            sops-nix.nixosModules.sops
+            agenix.darwinModules.default
           ];
 
           users.users.hetzner.openssh.authorizedKeys.keys = builtins.attrValues sshPubKeys;
@@ -167,8 +169,8 @@
         default = pkgs.mkShell {
           buildInputs = [
             cachix-deploy-flake.packages.${system}.bootstrapHetzner
+            agenix.packages.${system}.default
             pkgs.sops
-            pkgs.ssh-to-age
           ];
         };
       });
