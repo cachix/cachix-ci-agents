@@ -7,6 +7,12 @@
 
 let
   cfg = config.cachix.github-runner;
+  preJobScript = pkgs.writeShellScript "runner-pre-job.sh" ''
+    #!/usr/bin/env bash
+    nixconf=$(mktemp "nix.conf.XXXXXX")
+    echo "access-tokens = $GITHUB_TOKEN" >> $nixconf
+    export NIX_USER_CONF_FILES=$nixconf
+  '';
 in
 {
   options.cachix.github-runner = {
@@ -83,6 +89,9 @@ in
           tokenFile = cfg.tokenFile;
           # Replace an existing runner with the same name, instead of erroring out.
           replace = true;
+          extraEnvironment = {
+            ACTIONS_RUNNER_HOOK_JOB_STARTED = preJobScript;
+          };
           extraPackages =
             with (if cfg.enableRosetta then pkgs.pkgsx86_64Darwin else pkgs);
             [
