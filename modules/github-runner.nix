@@ -155,7 +155,7 @@ in
         // lib.optionalAttrs cfg.enableRosetta {
           package = "/usr/bin/arch -x86_64 " + pkgs.pkgsx86_64Darwin.github-runner;
         }
-        // lib.optionalAttrs pkgs.stdenv.isLinux { user = "_github_runner"; }
+        // lib.optionalAttrs pkgs.stdenv.isLinux { user = "_github-runner"; }
         // cfg.extraService
       );
     })
