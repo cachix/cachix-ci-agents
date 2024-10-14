@@ -11,24 +11,28 @@ Make sure to install rosetta: `softwareupdate --install-rosetta --agree-to-licen
 
 # Secrets
 
-Secrets are managed by sops: https://github.com/Mic92/sops-nix
+Secrets are managed by agenix: https://github.com/ryantm/agenix
 
-### Add a new secret
+### Add a new secret, machine, or user
+
+Edit `secrets/secrets.nix` to add secrets, machines, and users.
+
+You can get the public key for a machine with `ssh-keyscan`:
 
 ```shell
-sops secrets.yaml
+ssh-keyscan <IP/DOMAIN>
 ```
 
-### Add a new machine or user key
-
-To add a new key, edit `.sops.yaml`, then run:
+Create a new encrypted secret with:
 
 ```shell
-sops updatekeys secrets.yaml
+cd secrets
+agenix -e <NAME>.age -i ~/.ssh/<publickey>
 ```
 
-You can get the key for a machine with `ssh-keyscan`:
+### Edit an existing secret
 
 ```shell
-ssh-keyscan <IP/DOMAIN> | ssh-to-age
+cd secrets
+agenix -e <NAME>.age -i ~/.ssh/<publickey>
 ```
