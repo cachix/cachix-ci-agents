@@ -1,7 +1,10 @@
 { config, pkgs, lib, ... }:
 
 {
-  imports = [ ../modules/common.nix ];
+  imports = [
+    ../modules/common.nix
+    ../modules/github-runner.nix
+  ];
 
   nix.settings.trusted-users = ["hetzner"];
 

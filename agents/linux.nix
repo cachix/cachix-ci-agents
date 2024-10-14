@@ -1,7 +1,10 @@
 { config, pkgs, lib, ... }:
 
 {
-  imports = [ ../modules/common.nix ];
+  imports = [
+    ../modules/common.nix
+    ../modules/github-runner.nix
+  ];
 
   virtualisation.docker.enable = true;
   users.users.github-runner.extraGroups = [ "docker" ];
