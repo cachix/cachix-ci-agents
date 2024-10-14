@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
   nix.package = pkgs.nixVersions.nix_2_23;
@@ -22,7 +22,8 @@
 
   age.secrets.github-runner-token = {
     file = ../secrets/github-runner-token.age;
-    owner = if pkgs.stdenv.isDarwin then config.cachix.github-runner.group else null;
     group = config.cachix.github-runner.group;
+  } // lib.optionalAttrs pkgs.stdenv.isDarwin {
+    owner = config.cachix.github-runner.group;
   };
 }
