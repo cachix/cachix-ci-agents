@@ -83,7 +83,6 @@ in
           tokenFile = cfg.tokenFile;
           # Replace an existing runner with the same name, instead of erroring out.
           replace = true;
-          user = if pkgs.stdenv.isLinux then "_github-runner" else null;
           extraPackages =
             with (if cfg.enableRosetta then pkgs.pkgsx86_64Darwin else pkgs);
             [
@@ -147,7 +146,7 @@ in
         // lib.optionalAttrs cfg.enableRosetta {
           package = "/usr/bin/arch -x86_64 " + pkgs.pkgsx86_64Darwin.github-runner;
         }
-        // lib.optionalAttrs pkgs.stdenv.isLinux { user = name i; }
+        // lib.optionalAttrs pkgs.stdenv.isLinux { user = "_github_runner"; }
         // cfg.extraService
       );
     })
