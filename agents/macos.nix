@@ -1,4 +1,4 @@
-{ config, lib, stdenv, ... }:
+{ config, pkgs, lib, ... }:
 
 {
   imports = [ ../modules/common.nix ];
@@ -14,7 +14,7 @@
     enable = true;
     count = 2;
     githubOrganization = "cachix";
-    namePrefix = "cachix-${stdenv.system}";
+    namePrefix = "cachix-${pkgs.stdenv.system}";
     tokenFile = config.sops.secrets.github-runner-token.path;
   };
 
