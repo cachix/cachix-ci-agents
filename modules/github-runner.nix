@@ -66,8 +66,8 @@ in
 
   # create each github runner
   # NOTE: see https://github.com/NixOS/nixpkgs/issues/231427#issuecomment-1545312478 how to prevent inf rec
-  config =
-    let
+  config = lib.mkIf cfg.enable (lib.mkMerge [
+    (let
       name = i: "${cfg.namePrefix}-${toString i}";
       runners = lib.range 1 cfg.count;
       mkRunner = f: builtins.foldl' (acc: i: acc // { ${name i} = f i; }) { } runners;
@@ -151,26 +151,26 @@ in
         // lib.optionalAttrs pkgs.stdenv.isLinux { user = name i; }
         // cfg.extraService
       );
+    })
+    # The nix-darwin module already creates the user and group.
+    (lib.mkIf pkgs.stdenv.isLinux {
+      users.groups.${cfg.group} = { };
 
-      # The nix-darwin module already creates the user.
-      users = lib.optionalAttrs pkgs.stdenv.isLinux {
-        groups.${cfg.group} = { };
+      users.users."_github-runner" = {
+        group = cfg.group;
+        extraGroups = cfg.extraGroups;
 
-        users."_github-runner" = {
-          group = cfg.group;
-          extraGroups = cfg.extraGroups;
+        # make sure we don't create home as the runner does
+        isSystemUser = true;
 
-          # make sure we don't create home as the runner does
-          isSystemUser = true;
-
-          # Software like openssh executes getpwuid to get user's home.
-          # because they won't want you to exploit setting $HOME.
-          # On the other hand, systemd DynamicUser=1 sets it to /, which results into ...
-          # a lot of confusion.
-          # we set home entry in nss to match $HOME
-          home = "/run/github-runner/github-runner";
-        };
+        # Software like openssh executes getpwuid to get user's home.
+        # because they won't want you to exploit setting $HOME.
+        # On the other hand, systemd DynamicUser=1 sets it to /, which results into ...
+        # a lot of confusion.
+        # we set home entry in nss to match $HOME
+        home = "/run/github-runner/github-runner";
       };
-    };
+    })
+  ]);
 }
 
