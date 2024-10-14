@@ -1,16 +1,23 @@
-{ pkgs, lib, ... }:
+{ config, pkgs, lib, ... }:
 
 {
-  imports = [ ../common.nix ];
+  imports = [
+    ../modules/common.nix
+    ../modules/github-runner.nix
+  ];
 
-  nix.extraOptions = ''
-    always-allow-substitutes = true
-    experimental-features = flakes nix-command
-  '';
-  nix.settings.trusted-users = ["root" "hetzner"];
+  nix.settings.trusted-users = ["hetzner"];
 
   networking.hostName = "macos";
   services.cachix-agent.enable = true;
+
+  cachix.github-runner = {
+    enable = true;
+    count = 2;
+    githubOrganization = "cachix";
+    namePrefix = "cachix-${pkgs.stdenv.system}";
+    tokenFile = config.age.secrets.github-runner-token.path;
+  };
 
   # required on M1
   programs.zsh.enable = true;
