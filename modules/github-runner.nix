@@ -30,7 +30,7 @@ in
     group = lib.mkOption {
       type = lib.types.str;
       description = "The group create and run the runner as";
-      default = "github-runner";
+      default = "_github-runner";
     };
 
     enableRosetta = lib.mkOption {
@@ -84,6 +84,7 @@ in
           tokenFile = cfg.tokenFile;
           # Replace an existing runner with the same name, instead of erroring out.
           replace = true;
+          user = if pkgs.stdenv.isLinux then "_github-runner" else null;
           extraPackages =
             with (if cfg.enableRosetta then pkgs.pkgsx86_64Darwin else pkgs);
             [
@@ -151,25 +152,24 @@ in
         // cfg.extraService
       );
 
+      # The nix-darwin module already creates the user.
       users = lib.optionalAttrs pkgs.stdenv.isLinux {
         groups.${cfg.group} = { };
 
-        users = (
-          mkRunner (i: {
-            group = cfg.group;
-            extraGroups = cfg.extraGroups;
+        users."_github-runner" = {
+          group = cfg.group;
+          extraGroups = cfg.extraGroups;
 
-            # make sure we don't create home as the runner does
-            isSystemUser = true;
+          # make sure we don't create home as the runner does
+          isSystemUser = true;
 
-            # Software like openssh executes getpwuid to get user's home.
-            # because they won't want you to exploit setting $HOME.
-            # On the other hand, systemd DynamicUser=1 sets it to /, which results into ...
-            # a lot of confusion.
-            # we set home entry in nss to match $HOME
-            home = "/run/github-runner/${name i}";
-          })
-        );
+          # Software like openssh executes getpwuid to get user's home.
+          # because they won't want you to exploit setting $HOME.
+          # On the other hand, systemd DynamicUser=1 sets it to /, which results into ...
+          # a lot of confusion.
+          # we set home entry in nss to match $HOME
+          home = "/run/github-runner/github-runner";
+        };
       };
     };
 }
