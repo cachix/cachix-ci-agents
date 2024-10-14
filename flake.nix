@@ -150,6 +150,8 @@
         cachix-deploy-lib.darwin {
           imports = [ ./agents/macos.nix ];
 
+          users.users.hetzner.openssh.authorizedKeys.keys = builtins.attrValues sshPubKeys;
+
           environment.systemPackages = [ devenv.packages.aarch64-darwin.devenv ];
         };
 
