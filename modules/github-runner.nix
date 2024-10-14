@@ -73,8 +73,7 @@ in
       mkRunner = f: builtins.foldl' (acc: i: acc // { ${name i} = f i; }) { } runners;
     in
     {
-      nix.settings.trusted-users =
-        if pkgs.stdenv.isLinux then builtins.map name runners else [ "_github-runner" ];
+      nix.settings.trusted-users = "_github-runner";
 
       services.github-runners = mkRunner (
         i:
