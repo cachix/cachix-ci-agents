@@ -22,7 +22,7 @@
 
   age.secrets.github-runner-token = {
     file = ../secrets/github-runner-token.age;
-    owner = config.cachix.github-runner.group;
+    owner = if pkgs.stdenv.isDarwin then config.cachix.github-runner.group else null;
     group = config.cachix.github-runner.group;
   };
 }
