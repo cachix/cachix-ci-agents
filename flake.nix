@@ -5,7 +5,6 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
     devenv.url = "github:cachix/devenv/latest";
 
-
     agenix = {
       url = "github:ryantm/agenix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -25,8 +24,8 @@
     };
 
     cachix-flake = {
-      url = "github:cachix/cachix";
-      inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:cachix/cachix/latest";
+      # inputs.nixpkgs.follows = "nixpkgs";
       inputs.devenv.follows = "devenv";
     };
 
