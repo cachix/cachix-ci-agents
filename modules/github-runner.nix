@@ -8,7 +8,7 @@
 let
   cfg = config.cachix.github-runner;
   preJobScript = pkgs.writeShellScript "runner-pre-job.sh" ''
-    nixconf=$(${pkgs.coreutils}/bin/mktemp --tmpdir $RUNNER_TEMP "nix.conf.XXXXXX")
+    nixconf=$(${pkgs.coreutils}/bin/mktemp "$RUNNER_TEMP/nix.conf.XXXXXX")
     echo "access-tokens = $GITHUB_TOKEN" >> $nixconf
     echo "NIX_USER_CONF_FILES=$(readlink -f "$nixconf")" >> $GITHUB_ENV
   '';
