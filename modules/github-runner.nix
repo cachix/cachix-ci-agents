@@ -7,14 +7,6 @@
 
 let
   cfg = config.cachix.github-runner;
-
-  # TODO: does not work because pre-job scripts don't get the $GITHUB_TOKEN.
-  # Upstream issue: https://github.com/actions/runner/issues/2813
-  preJobScript = pkgs.writeShellScript "runner-pre-job.sh" ''
-    nixconf=$(${pkgs.coreutils}/bin/mktemp "$RUNNER_TEMP/nix.conf.XXXXXX")
-    echo "extra-access-tokens = github.com=$GITHUB_TOKEN" >> $nixconf
-    echo "NIX_USER_CONF_FILES=$nixconf" >> $GITHUB_ENV
-  '';
 in
 {
   options.cachix.github-runner = {
@@ -91,9 +83,6 @@ in
           tokenFile = cfg.tokenFile;
           # Replace an existing runner with the same name, instead of erroring out.
           replace = true;
-          extraEnvironment = {
-            ACTIONS_RUNNER_HOOK_JOB_STARTED = toString preJobScript;
-          };
           extraPackages =
             with (if cfg.enableRosetta then pkgs.pkgsx86_64Darwin else pkgs);
             [
