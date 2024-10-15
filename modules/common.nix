@@ -8,6 +8,7 @@
     min-free = ${toString (10 * 1024 * 1024 * 1024)}
     max-free = ${toString (30 * 1024 * 1024 * 1024)}
     extra-experimental-features = flakes nix-command
+    !include ${config.age.secrets.nix-access-tokens.path}
   '';
 
   environment.systemPackages = with pkgs; [
@@ -25,4 +26,6 @@
     owner = config.cachix.github-runner.group;
     group = config.cachix.github-runner.group;
   };
+
+  age.secrets.nix-access-tokens.file = ../secrets/nix-access-tokens.age;
 }

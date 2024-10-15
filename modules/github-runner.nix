@@ -7,10 +7,13 @@
 
 let
   cfg = config.cachix.github-runner;
+
+  # TODO: does not work because pre-job scripts don't get the $GITHUB_TOKEN.
+  # Upstream issue: https://github.com/actions/runner/issues/2813
   preJobScript = pkgs.writeShellScript "runner-pre-job.sh" ''
     nixconf=$(${pkgs.coreutils}/bin/mktemp "$RUNNER_TEMP/nix.conf.XXXXXX")
-    echo "access-tokens = $GITHUB_TOKEN" >> $nixconf
-    echo "NIX_USER_CONF_FILES=$(readlink -f "$nixconf")" >> $GITHUB_ENV
+    echo "extra-access-tokens = github.com=$GITHUB_TOKEN" >> $nixconf
+    echo "NIX_USER_CONF_FILES=$nixconf" >> $GITHUB_ENV
   '';
 in
 {

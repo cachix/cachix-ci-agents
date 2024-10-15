@@ -11,4 +11,8 @@ let
   servers = [ server_aarch64_linux server_x86_64_linux server_aarch64_darwin ];
 in {
   "github-runner-token.age".publicKeys = admins ++ servers;
+
+  # extra-access-tokens for Nix. Includes:
+  # - github.com basic token. Expires: 15/10/2025
+  "nix-access-tokens.age".publicKeys = admins ++ servers;
 }
