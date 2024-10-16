@@ -15,7 +15,10 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [[ubuntu-latest], [macos-latest], [self-hosted, Linux, ARM64]]
+        os:
+          - [self-hosted, Linux, X86]
+          - [macos-latest]
+          - [self-hosted, Linux, ARM64]
     runs-on: ${{ matrix.os }}
     outputs:
       x86_64-linux: ${{ steps.agent.outputs.x86_64-linux }}
