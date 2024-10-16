@@ -51,6 +51,14 @@ in
       description = "Extra service to run on the runner";
     };
 
+    serviceOverrides = lib.mkOption {
+      type = lib.types.attrs;
+      default = { };
+      description = ''
+        Modify the service. Can be used to, e.g., adjust the sandboxing options.
+      '';
+    };
+
     extraPackages = lib.mkOption {
       type = lib.types.listOf lib.types.package;
       default = [ ];
@@ -131,17 +139,20 @@ in
             ]
             ++ lib.optionals pkgs.stdenv.isDarwin [ ]
             ++ cfg.extraPackages;
-          serviceOverrides = lib.optionalAttrs pkgs.stdenv.isLinux {
-            # needed for Cachix installation to work
-            ReadWritePaths = [ "/nix/var/nix/profiles/per-user/" ];
+          serviceOverrides = lib.mkMerge [
+            (lib.optionalAttrs pkgs.stdenv.isLinux {
+              # needed for Cachix installation to work
+              ReadWritePaths = [ "/nix/var/nix/profiles/per-user/" ];
 
-            # Allow writing to $HOME
-            ProtectHome = "tmpfs";
+              # Allow writing to $HOME
+              ProtectHome = "tmpfs";
 
-            # Always restart, which is possible with a PAT.
-            Restart = lib.mkForce "always";
-            RestartSec = "30s";
-          };
+              # Always restart, which is possible with a PAT.
+              Restart = lib.mkForce "always";
+              RestartSec = "30s";
+            })
+            cfg.serviceOverrides
+          ];
         }
         // lib.optionalAttrs cfg.enableRosetta {
           package = "/usr/bin/arch -x86_64 " + pkgs.pkgsx86_64Darwin.github-runner;
