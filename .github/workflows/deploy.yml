@@ -16,9 +16,9 @@ jobs:
     strategy:
       matrix:
         os:
-          - [self-hosted, Linux, X86]
+          - [ubuntu-latest]
           - [macos-latest]
-          - [self-hosted, Linux, ARM64]
+          - [self-hosted, linux, ARM64]
     runs-on: ${{ matrix.os }}
     outputs:
       x86_64-linux: ${{ steps.agent.outputs.x86_64-linux }}
@@ -42,6 +42,8 @@ jobs:
           out_path=$(nix build -L --print-out-paths --accept-flake-config)
           echo "Built $out_path"
           echo "$system=$out_path" >> $GITHUB_OUTPUT
+          # Wait for all paths to flush to daemon. TODO: fix upstream.
+          sleep 3
 
   deploy:
     if: github.ref == 'refs/heads/main'
