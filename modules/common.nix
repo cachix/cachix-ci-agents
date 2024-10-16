@@ -25,7 +25,13 @@
     file = ../secrets/github-runner-token.age;
     owner = config.cachix.github-runner.group;
     group = config.cachix.github-runner.group;
+    mode = "440";
   };
 
-  age.secrets.nix-access-tokens.file = ../secrets/nix-access-tokens.age;
+  age.secrets.nix-access-tokens = {
+    file = ../secrets/nix-access-tokens.age;
+    owner = config.cachix.github-runner.group;
+    group = config.cachix.github-runner.group;
+    mode = "440";
+  };
 }
