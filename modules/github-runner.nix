@@ -91,6 +91,8 @@ in
           tokenFile = cfg.tokenFile;
           # Replace an existing runner with the same name, instead of erroring out.
           replace = true;
+          # Re-launch the runner after each job.
+          ephemeral = true;
           extraPackages =
             with (if cfg.enableRosetta then pkgs.pkgsx86_64Darwin else pkgs);
             [
