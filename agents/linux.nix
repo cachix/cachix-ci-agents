@@ -10,7 +10,7 @@
 
   cachix.github-runner = {
     enable = true;
-    count = 8;
+    count = 4;
     githubOrganization = "cachix";
     namePrefix = "cachix-${pkgs.stdenv.system}";
     extraGroups = [ "docker" ];
