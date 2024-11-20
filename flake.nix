@@ -2,7 +2,7 @@
   description = "Cachix CI Agents";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
     devenv.url = "github:cachix/devenv/latest";
 
     agenix = {
