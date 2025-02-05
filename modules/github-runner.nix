@@ -120,6 +120,7 @@ in
               gnutar
               gzip
               xz
+              locale
               less
               ncurses
               netcat
