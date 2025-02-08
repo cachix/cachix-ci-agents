@@ -6,87 +6,84 @@
 }:
 
 let
-  cfg = config.cachix.github-runner;
+  anyRunnerEnabled = (lib.any (cfg: cfg.enable) (lib.attrValues config.cachix.github-runners.runners));
 in
 {
-  options.cachix.github-runner = {
-    enable = lib.mkEnableOption "Enable github runners.";
-
-    namePrefix = lib.mkOption {
-      type = lib.types.str;
-      description = "The prefix to use for the runner name";
-    };
-
-    githubOrganization = lib.mkOption {
-      type = lib.types.str;
-      description = "The github organization to register the runner with";
-    };
-
-    tokenFile = lib.mkOption {
-      type = lib.types.path;
-      description = "The file containing the PAT token";
-    };
-
+  options.cachix.github-runners = {
     group = lib.mkOption {
       type = lib.types.str;
-      description = "The group create and run the runner as";
       default = "_github-runner";
-    };
-
-    enableRosetta = lib.mkOption {
-      type = lib.types.bool;
-      default = false;
-      description = "Enable rosetta on Apple Silicon";
-    };
-
-    count = lib.mkOption {
-      type = lib.types.int;
-      default = 1;
-      description = "Number of runners to start";
-    };
-
-    extraService = lib.mkOption {
-      type = lib.types.anything;
-      default = { };
-      description = "Extra service to run on the runner";
-    };
-
-    serviceOverrides = lib.mkOption {
-      type = lib.types.attrs;
-      default = { };
-      description = ''
-        Modify the service. Can be used to, e.g., adjust the sandboxing options.
-      '';
-    };
-
-    extraPackages = lib.mkOption {
-      type = lib.types.listOf lib.types.package;
-      default = [ ];
-      description = "Extra packages to add to the runner env";
+      description = "The group to create and run the runner as";
     };
 
     extraGroups = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       default = [ ];
-      description = "Extra groups to add to each github user";
+      description = "Extra groups to add to each runner user";
+    };
+
+    runners = lib.mkOption {
+      description = "Customized GitHub runners";
+      type = lib.types.attrsOf (lib.types.submodule ({ name, ... }: {
+        enable = lib.mkEnableOption "GitHub runners.";
+
+        name = lib.mkOption {
+          type = lib.types.str;
+          description = "The name to use for the runner";
+        };
+
+        githubOrganization = lib.mkOption {
+          type = lib.types.str;
+          description = "The github organization to register the runner with";
+        };
+
+        tokenFile = lib.mkOption {
+          type = lib.types.path;
+          description = "The file containing the PAT token";
+        };
+
+        group = lib.mkOption {
+          type = lib.types.str;
+          description = "The group to create and run the runner as";
+          default = config.cachix.github-runners.group;
+        };
+
+        enableRosetta = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Enable rosetta on Apple Silicon";
+        };
+
+        extraService = lib.mkOption {
+          type = lib.types.anything;
+          default = { };
+          description = "Extra service to run on the runner";
+        };
+
+        serviceOverrides = lib.mkOption {
+          type = lib.types.attrs;
+          default = { };
+          description = ''
+            Modify the service. Can be used to, e.g., adjust the sandboxing options.
+          '';
+        };
+
+        extraPackages = lib.mkOption {
+          type = lib.types.listOf lib.types.package;
+          default = [ ];
+          description = "Extra packages to add to the runner env";
+        };
+
+      }));
     };
   };
 
   # create each github runner
   # NOTE: see https://github.com/NixOS/nixpkgs/issues/231427#issuecomment-1545312478 how to prevent inf rec
-  config = lib.mkIf cfg.enable (lib.mkMerge [
-    (let
-      name = i: "${cfg.namePrefix}-${toString i}";
-      runners = lib.range 1 cfg.count;
-      mkRunner = f: builtins.foldl' (acc: i: acc // { ${name i} = f i; }) { } runners;
-    in
-    {
-      nix.settings.trusted-users = [ "_github-runner" ];
-
-      services.github-runners = mkRunner (
-        i:
-        {
-          enable = true;
+  config.services.github-runners = lib.flip lib.mapAttrs' config.cachix.github-runners (name: cfg:
+      lib.nameValuePair name (lib.mkIf cfg.enable {
+        services.github-runners.${name} = lib.mkMerge [{
+          enable = cfg.enable;
           url = "https://github.com/${cfg.githubOrganization}";
           tokenFile = cfg.tokenFile;
           # Replace an existing runner with the same name, instead of erroring out.
@@ -157,20 +154,27 @@ in
             cfg.serviceOverrides
           ];
         }
-        // lib.optionalAttrs cfg.enableRosetta {
+        (lib.mkIf cfg.enableRosetta {
           package = "/usr/bin/arch -x86_64 " + pkgs.pkgsx86_64Darwin.github-runner;
-        }
-        // lib.optionalAttrs pkgs.stdenv.isLinux { user = "_github-runner"; }
-        // cfg.extraService
-      );
+        })
+        (lib.mkIf pkgs.stdenv.isLinux { user = "_github-runner"; })
+        cfg.extraService
+      ];
     })
-    # The nix-darwin module already creates the user and group.
-    (lib.mkIf pkgs.stdenv.isLinux {
-      users.groups.${cfg.group} = { };
+  );
 
-      users.users."_github-runner" = {
-        group = cfg.group;
-        extraGroups = cfg.extraGroups;
+  config.nix.settings = lib.mkIf anyRunnerEnabled {
+    trusted-users = [ "_github-runner" ];
+  };
+
+  config.users = lib.mkIf (lib.any (cfg: cfg.enable) (lib.attrValues config.cachix.github-runners.runners)) (lib.mkMerge [
+    # The nix-darwin module already creates the user and group.
+    (lib.mkIf (pkgs.stdenv.isLinux) {
+      groups.${config.cachix.github-runners.group} = { };
+
+      users."_github-runner" = {
+        group = config.cachix.github-runners.group;
+        extraGroups = config.cachix.github-runners.extraGroups;
 
         # make sure we don't create home as the runner does
         isSystemUser = true;
@@ -188,4 +192,3 @@ in
     })
   ]);
 }
-

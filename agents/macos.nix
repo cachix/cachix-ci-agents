@@ -1,5 +1,8 @@
 { config, pkgs, lib, ... }:
 
+let
+  mkRunnerGroup = lib.callPackage ../lib/runners.nix {};
+in
 {
   imports = [
     ../modules/common.nix
@@ -11,11 +14,20 @@
   networking.hostName = "macos";
   services.cachix-agent.enable = true;
 
-  cachix.github-runner = {
+  # nix-darwin will create the _github-runner user and group for us.
+  services.github-runners = mkRunnerGroup {
     enable = true;
     count = 2;
     githubOrganization = "cachix";
     namePrefix = "cachix-${pkgs.stdenv.system}";
+    tokenFile = config.age.secrets.github-runner-token.path;
+    extraPackages = [ pkgs.devenv ];
+  } // mkRunnerGroup {
+    enable = true;
+    count = 2;
+    githbOrganization = "cachix";
+    namePrefix = "cachix-x86_64-darwin-rosetta";
+    enableRosetta = true;
     tokenFile = config.age.secrets.github-runner-token.path;
     extraPackages = [ pkgs.devenv ];
   };
