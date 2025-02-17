@@ -181,6 +181,9 @@ in
         # a lot of confusion.
         # we set home entry in nss to match $HOME
         home = "/run/github-runner/github-runner";
+
+        # Allow interactive shells (e.g. nix shell)
+        useDefaultShell = true;
       };
     })
   ]);
