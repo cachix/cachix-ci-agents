@@ -1,7 +1,7 @@
 { config, pkgs, lib, ... }:
 
 {
-  nix.package = pkgs.nixVersions.nix_2_23;
+  nix.package = pkgs.nixVersions.nix_2_26;
   nix.settings.trusted-users = [ "root" ];
   nix.extraOptions = ''
     always-allow-substitutes = true

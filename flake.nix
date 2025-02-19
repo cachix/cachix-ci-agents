@@ -3,6 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     devenv.url = "github:cachix/devenv/latest";
 
     agenix = {
@@ -43,15 +44,13 @@
   nixConfig = {
     extra-substituters = [
       "https://cachix-ci-agents.cachix.org"
-      "https://cachix.cachix.org"
     ];
     extra-trusted-public-keys = [
       "cachix-ci-agents.cachix.org-1:qVO9icjGen2UY8QnkygVYKajmjwjp3l6cHUT6t+lkHs="
-      "cachix.cachix.org-1:eWNHQldwUO7G2VkjpnjDbWwy4KQ/HNxht7H4SSoMckM="
     ];
   };
 
-  outputs = { self, devenv, nixpkgs, cachix-deploy-flake, cachix-flake, srvos, disko, agenix, ... }:
+  outputs = { self, devenv, nixpkgs, nixpkgs-unstable, cachix-deploy-flake, cachix-flake, srvos, disko, agenix, ... }:
     let
       linuxMachineName = "linux";
       sshPubKeys = {
@@ -69,6 +68,11 @@
             (final: prev: {
               cachix = cachix-flake.packages.${system}.default;
               devenv = devenv.packages.${system}.devenv;
+              # Use nix from unstable until curl 8.12 lands in 24.11
+              # PR: https://github.com/NixOS/nixpkgs/pull/379541
+              #
+              # Unstable currently patches curl 8.11.1 to fix one of the netrc bugs that breaks cachix.
+              nixVersions.nix_2_26 = nixpkgs-unstable.legacyPackages.${system}.nixVersions.nix_2_26;
             })
           ];
         };
