@@ -14,6 +14,7 @@
     githubOrganization = "cachix";
     namePrefix = "cachix-${pkgs.stdenv.system}";
     extraGroups = [ "docker" ];
+    extraPackages = [ pkgs.devenv ];
     tokenFile = config.age.secrets.github-runner-token.path;
     serviceOverrides = {
       # TODO: merge this properly

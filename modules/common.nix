@@ -2,7 +2,7 @@
 
 {
   nix.package = pkgs.nixVersions.nix_2_23;
-  nix.settings.trusted-users = [ "root "];
+  nix.settings.trusted-users = [ "root" ];
   nix.extraOptions = ''
     always-allow-substitutes = true
     min-free = ${toString (10 * 1024 * 1024 * 1024)}
@@ -18,6 +18,7 @@
     git
     tmux
     cachix
+    devenv
     direnv
   ];
 

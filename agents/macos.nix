@@ -17,6 +17,7 @@
     githubOrganization = "cachix";
     namePrefix = "cachix-${pkgs.stdenv.system}";
     tokenFile = config.age.secrets.github-runner-token.path;
+    extraPackages = [ pkgs.devenv ];
   };
 
   # required on M1
