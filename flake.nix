@@ -68,6 +68,7 @@
           overlays = [
             (final: prev: {
               cachix = cachix-flake.packages.${system}.default;
+              devenv = devenv.packages.${system}.devenv;
             })
           ];
         };
@@ -110,7 +111,7 @@
 
       packages.x86_64-linux.default =
         let
-          inherit (common "x86_64-linux") cachix-deploy-lib pkgs bootstrapNixOS;
+          inherit (common "x86_64-linux") cachix-deploy-lib bootstrapNixOS;
         in
         cachix-deploy-lib.nixos {
           imports = [
@@ -123,25 +124,17 @@
           boot.loader.grub.efiInstallAsRemovable = lib.mkForce false;
 
           users.users.root.openssh.authorizedKeys.keys = builtins.attrValues sshPubKeys;
-
-          cachix.github-runner.extraPackages = [ devenv.packages.x86_64-linux.devenv ];
-
-          environment.systemPackages = [ devenv.packages.x86_64-linux.devenv ];
         };
 
       packages.aarch64-linux.default =
         let
-          inherit (common "aarch64-linux") cachix-deploy-lib pkgs;
+          inherit (common "aarch64-linux") cachix-deploy-lib;
         in
         cachix-deploy-lib.nixos {
           imports = aarch64-linux-modules;
 
           # try to limit memory usage
           nix.settings.max-jobs = 8;
-
-          cachix.github-runner.extraPackages = [ devenv.packages.aarch64-linux.devenv ];
-
-          environment.systemPackages = [ devenv.packages.aarch64-linux.devenv ];
         };
 
       packages.aarch64-darwin.default =
@@ -155,10 +148,6 @@
           ];
 
           users.users.hetzner.openssh.authorizedKeys.keys = builtins.attrValues sshPubKeys;
-
-          cachix.github-runner.extraPackages = [ devenv.packages.aarch64-darwin.devenv ];
-
-          environment.systemPackages = [ devenv.packages.aarch64-darwin.devenv ];
         };
 
       devShells = forAllSystems (system:
