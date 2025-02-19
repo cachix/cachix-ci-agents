@@ -68,11 +68,7 @@
             (final: prev: {
               cachix = cachix-flake.packages.${system}.default;
               devenv = devenv.packages.${system}.devenv;
-              # Use nix from unstable until curl 8.12 lands in 24.11
-              # PR: https://github.com/NixOS/nixpkgs/pull/379541
-              #
-              # Unstable currently patches curl 8.11.1 to fix one of the netrc bugs that breaks cachix.
-              nixVersions.nix_2_26 = nixpkgs-unstable.legacyPackages.${system}.nixVersions.nix_2_26;
+              unstable = nixpkgs-unstable.legacyPackages.${system};
             })
           ];
         };
