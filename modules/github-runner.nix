@@ -192,7 +192,7 @@ in
   );
 
   config.nix.settings = lib.mkIf anyRunnerEnabled {
-    trusted-users = [ cfg.group ];
+    trusted-users = [ "@${cfg.group}" ];
   };
 
   config.users = lib.mkMerge [
