@@ -11,13 +11,25 @@
   networking.hostName = "macos";
   services.cachix-agent.enable = true;
 
-  cachix.github-runner = {
-    enable = true;
-    count = 2;
-    githubOrganization = "cachix";
-    namePrefix = "cachix-${pkgs.stdenv.system}";
-    tokenFile = config.age.secrets.github-runner-token.path;
-    extraPackages = [ pkgs.devenv ];
+  cachix.github-runners = {
+    runners."aarch64-darwin" = {
+      enable = true;
+      count = 2;
+      githubOrganization = "cachix";
+      namePrefix = "cachix-${pkgs.stdenv.system}-";
+      tokenFile = config.age.secrets.github-runner-token.path;
+      extraPackages = [ pkgs.devenv ];
+    };
+
+    runners."x86_64-darwin" = {
+      enable = true;
+      count = 2;
+      rosetta.enable = true;
+      githubOrganization = "cachix";
+      namePrefix = "cachix-x86_64-darwin-rosetta-";
+      tokenFile = config.age.secrets.github-runner-token.path;
+      extraPackages = [ pkgs.devenv ];
+    };
   };
 
   # required on M1

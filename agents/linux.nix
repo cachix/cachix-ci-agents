@@ -8,20 +8,22 @@
 
   virtualisation.docker.enable = true;
 
-  cachix.github-runner = {
-    enable = true;
-    count = 4;
-    githubOrganization = "cachix";
-    namePrefix = "cachix-${pkgs.stdenv.system}";
+  cachix.github-runners = {
+    group = "_github-runner";
     extraGroups = [ "docker" ];
-    extraPackages = [ pkgs.devenv ];
-    tokenFile = config.age.secrets.github-runner-token.path;
-    serviceOverrides = {
-      # TODO: merge this properly
-      ReadWritePaths = [
-        "/nix/var/nix/profiles/per-user/"
-        (toString config.age.secrets.nix-access-tokens.path)
-      ];
+
+    runners.default = {
+        enable = true;
+        count = 4;
+        githubOrganization = "cachix";
+        namePrefix = "cachix-${pkgs.stdenv.system}-";
+        tokenFile = config.age.secrets.github-runner-token.path;
+        extraPackages = [ pkgs.devenv ];
+        serviceOverrides = {
+          ReadWritePaths = [
+            (toString config.age.secrets.nix-access-tokens.path)
+          ];
+        };
     };
   };
 
