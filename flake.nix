@@ -71,6 +71,8 @@
               cachix = cachix-flake.packages.${system}.default;
               devenv = devenv.packages.${system}.devenv;
               unstable = nixpkgs-unstable.legacyPackages.${system};
+            } // lib.optionalAttrs (system == "aarch64-darwin") {
+              devenv-x86 = devenv.packages.x86_64-darwin.devenv;
             })
           ];
         };
