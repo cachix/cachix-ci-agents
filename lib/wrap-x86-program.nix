@@ -12,7 +12,7 @@ let
         name:
         writeScript "wrapped-${name}" ''
           #!/bin/sh
-          exec arch -x86_64 ${pkg}/bin/${name} "$@"
+          exec /usr/bin/arch -x86_64 ${pkg}/bin/${name} "$@"
         '';
 
       binFiles = builtins.attrNames (builtins.readDir "${pkg}/bin");
