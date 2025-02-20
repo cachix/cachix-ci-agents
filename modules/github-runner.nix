@@ -182,6 +182,8 @@ in
             ];
           }
           (lib.mkIf cfg.rosetta.enable {
+            noDefaultLabels = true;
+            extraLabels = [ "self-hosted" "X64" "macOS" ];
             extraEnvironment = {
               "NIX_USER_CONF_FILES" = "${pkgs.writeText "x86-nix-user-conf" ''
                 system = x86_64-darwin
