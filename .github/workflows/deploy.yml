@@ -17,8 +17,8 @@ jobs:
       matrix:
         os:
           - [ubuntu-latest]
+          - [ubuntu-24.04-arm]
           - [macos-latest]
-          - [self-hosted, linux, ARM64]
     runs-on: ${{ matrix.os }}
     outputs:
       x86_64-linux: ${{ steps.agent.outputs.x86_64-linux }}
