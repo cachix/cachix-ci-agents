@@ -6,7 +6,6 @@
   #
   # Unstable currently patches curl 8.11.1 to fix one of the netrc bugs that breaks cachix.
   nix.package = pkgs.unstable.nixVersions.nix_2_26;
-  nix.settings.trusted-users = [ "root" ];
   nix.extraOptions = ''
     always-allow-substitutes = true
     min-free = ${toString (10 * 1024 * 1024 * 1024)}

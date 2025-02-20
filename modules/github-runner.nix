@@ -198,7 +198,12 @@ in
   );
 
   config.nix.settings = lib.mkIf anyRunnerEnabled {
-    trusted-users = [ "@${cfg.group}" ];
+    trusted-users =
+      if pkgs.stdenv.isLinux
+      then [ "@${cfg.group}" ]
+      else if pkgs.stdenv.isDarwin
+      then [ "_github-runner" ]
+      else [ ];
   };
 
   config.users = lib.mkMerge [
