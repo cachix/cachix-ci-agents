@@ -28,7 +28,7 @@
       githubOrganization = "cachix";
       namePrefix = "cachix-x86_64-darwin-rosetta-";
       tokenFile = config.age.secrets.github-runner-token.path;
-      extraPackages = [ pkgs.devenv ];
+      extraPackages = [ pkgs.devenv-x86 ];
     };
   };
 
