@@ -7,13 +7,14 @@
 
 let
   anyRunnerEnabled = (lib.any (cfg: cfg.enable) (lib.attrValues config.cachix.github-runners.runners));
+  cfg = config.cachix.github-runners;
 in
 {
   options.cachix.github-runners = {
     group = lib.mkOption {
       type = lib.types.str;
       default = "_github-runner";
-      description = "The group to create and run the runner as";
+      description = "The group to add each runner user to";
     };
 
     extraGroups = lib.mkOption {
@@ -25,34 +26,38 @@ in
     runners = lib.mkOption {
       description = "Customized GitHub runners";
       type = lib.types.attrsOf (lib.types.submodule ({ name, ... }: {
-        enable = lib.mkEnableOption "GitHub runners.";
+        enable = lib.mkEnableOption "GitHub runner group";
 
-        name = lib.mkOption {
+        count = lib.mkOption {
+          type = lib.types.int;
+          default = 1;
+          description = "The number of runners to create";
+        };
+
+        namePrefix = lib.mkOption {
           type = lib.types.str;
-          description = "The name to use for the runner";
+          default = "github-runner-";
+          description = "The prefix to use for the runner name";
         };
 
         githubOrganization = lib.mkOption {
           type = lib.types.str;
-          description = "The github organization to register the runner with";
+          description = "The GitHub organization to register the runner with";
         };
 
         tokenFile = lib.mkOption {
           type = lib.types.path;
-          description = "The file containing the PAT token";
+          description = ''
+            A path to a file containing a PAT token.
+
+            Create a fine-grained PAT token for an organization with the following permissions:
+              - Self-hosted runners: Read and Write
+
+            https://github.com/settings/personal-access-tokens/new
+          '';
         };
 
-        group = lib.mkOption {
-          type = lib.types.str;
-          description = "The group to create and run the runner as";
-          default = config.cachix.github-runners.group;
-        };
-
-        enableRosetta = lib.mkOption {
-          type = lib.types.bool;
-          default = false;
-          description = "Enable rosetta on Apple Silicon";
-        };
+        rosetta.enable = lib.mkEnableOption "rosetta on Apple Silicon";
 
         extraService = lib.mkOption {
           type = lib.types.anything;
@@ -73,25 +78,30 @@ in
           default = [ ];
           description = "Extra packages to add to the runner env";
         };
-
       }));
     };
   };
 
-  # create each github runner
+  # Create each GitHub runner
   # NOTE: see https://github.com/NixOS/nixpkgs/issues/231427#issuecomment-1545312478 how to prevent inf rec
-  config.services.github-runners = lib.flip lib.mapAttrs' config.cachix.github-runners (name: cfg:
-      lib.nameValuePair name (lib.mkIf cfg.enable {
-        services.github-runners.${name} = lib.mkMerge [{
-          enable = cfg.enable;
-          url = "https://github.com/${cfg.githubOrganization}";
-          tokenFile = cfg.tokenFile;
-          # Replace an existing runner with the same name, instead of erroring out.
-          replace = true;
-          # Re-launch the runner after each job.
-          ephemeral = true;
-          extraPackages =
-            with (if cfg.enableRosetta then pkgs.pkgsx86_64Darwin else pkgs);
+  config.services.github-runners = lib.mkMerge (
+    lib.flatten (lib.mapAttrsToList (name: cfg:
+        lib.optionals cfg.enable (
+          lib.genList (index:
+            let
+              runnerName = "${cfg.namePrefix}${toString index}";
+            in
+      lib.nameValuePair runnerName (lib.mkMerge [
+        {
+        enable = cfg.enable;
+        url = "https://github.com/${cfg.githubOrganization}";
+        tokenFile = cfg.tokenFile;
+        # Replace an existing runner with the same name, instead of erroring out.
+        replace = true;
+        # Re-launch the runner after each job.
+        ephemeral = true;
+        extraPackages =
+          with (if cfg.rosetta.enable then pkgs.pkgsx86_64Darwin else pkgs);
             [
               # custom
               cachix
@@ -139,56 +149,62 @@ in
             ]
             ++ lib.optionals pkgs.stdenv.isDarwin [ ]
             ++ cfg.extraPackages;
-          serviceOverrides = lib.mkMerge [
-            (lib.optionalAttrs pkgs.stdenv.isLinux {
-              # needed for Cachix installation to work
-              ReadWritePaths = [ "/nix/var/nix/profiles/per-user/" ];
+        serviceOverrides = lib.mkMerge [
+          (lib.optionalAttrs pkgs.stdenv.isLinux {
+            # needed for Cachix installation to work
+            ReadWritePaths = [ "/nix/var/nix/profiles/per-user/" ];
 
-              # Allow writing to $HOME
-              ProtectHome = "tmpfs";
+            # Allow writing to $HOME
+            ProtectHome = "tmpfs";
 
-              # Always restart, which is possible with a PAT.
-              Restart = lib.mkForce "always";
-              RestartSec = "30s";
-            })
-            cfg.serviceOverrides
-          ];
-        }
-        (lib.mkIf cfg.enableRosetta {
-          package = "/usr/bin/arch -x86_64 " + pkgs.pkgsx86_64Darwin.github-runner;
-        })
-        (lib.mkIf pkgs.stdenv.isLinux { user = "_github-runner"; })
-        cfg.extraService
-      ];
-    })
-  );
+            # Always restart, which is possible with a PAT.
+            Restart = lib.mkForce "always";
+            RestartSec = "30s";
+          })
+          cfg.serviceOverrides
+        ];
+      }
+      (lib.mkIf cfg.rosetta.enable {
+        package = "/usr/bin/arch -x86_64 " + pkgs.pkgsx86_64Darwin.github-runner;
+      })
+      (lib.mkIf pkgs.stdenv.isLinux { user = runnerName; })
+      cfg.extraService
+      ])
+  )))));
 
   config.nix.settings = lib.mkIf anyRunnerEnabled {
-    trusted-users = [ "_github-runner" ];
+    trusted-users = [ cfg.group ];
   };
 
-  config.users = lib.mkIf (lib.any (cfg: cfg.enable) (lib.attrValues config.cachix.github-runners.runners)) (lib.mkMerge [
-    # The nix-darwin module already creates the user and group.
+  config.users = lib.mkMerge [
     (lib.mkIf (pkgs.stdenv.isLinux) {
-      groups.${config.cachix.github-runners.group} = { };
+      groups.${cfg.group} = { };
 
-      users."_github-runner" = {
-        group = config.cachix.github-runners.group;
-        extraGroups = config.cachix.github-runners.extraGroups;
+      users = lib.mkMerge (
+        lib.flatten (lib.mapAttrsToList (name: cfg:
+          lib.genList (index:
+            lib.nameValuePair "${cfg.namePrefix}${toString index}" {
+              group = config.cachix.github-runners.group;
+              extraGroups = config.cachix.github-runners.extraGroups;
 
-        # make sure we don't create home as the runner does
-        isSystemUser = true;
+              # Make sure we don't create home as the runner does
+              isSystemUser = true;
 
-        # Software like openssh executes getpwuid to get user's home.
-        # because they won't want you to exploit setting $HOME.
-        # On the other hand, systemd DynamicUser=1 sets it to /, which results into ...
-        # a lot of confusion.
-        # we set home entry in nss to match $HOME
-        home = "/run/github-runner/github-runner";
+                # Software like openssh executes getpwuid to get user's home.
+                # because they won't want you to exploit setting $HOME.
+                # On the other hand, systemd DynamicUser=1 sets it to /, which results into ...
+                # a lot of confusion.
+                # we set home entry in nss to match $HOME
+                home = "/run/github-runner/${cfg.namePrefix}${toString index}";
 
-        # Allow interactive shells (e.g. nix shell)
-        useDefaultShell = true;
-      };
+            # Allow interactive shells (e.g. nix shell)
+            useDefaultShell = true;
+            }
+            ) cfg.count
+        ) (lib.filterAttrs (name: cfg: cfg.enable) config.cachix.github-runners.runners))
+      );
     })
-  ]);
+    # The nix-darwin module already creates the user and group.
+    # TODO: create macOS users as well to have consistency
+  ];
 }
