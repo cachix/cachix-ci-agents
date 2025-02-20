@@ -182,7 +182,11 @@ in
             ];
           }
           (lib.mkIf cfg.rosetta.enable {
-            package = pkgs.pkgsx86_64Darwin.github-runner;
+            package =
+              let
+                wrapX86Program = pkgs.callPackage ../lib/wrap-x86-program.nix { };
+              in
+              wrapX86Program pkgs.pkgsx86_64Darwin.github-runner;
           })
           (lib.mkIf pkgs.stdenv.isLinux { user = runnerName; })
           cfg.extraService
