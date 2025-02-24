@@ -6,6 +6,16 @@
   #
   # Unstable currently patches curl 8.11.1 to fix one of the netrc bugs that breaks cachix.
   nix.package = pkgs.unstable.nixVersions.nix_2_26;
+  # Run GC every hour
+  nix.gc = {
+    automatic = true;
+    dates = "*:00";
+    randomizedDelaySec = "1800";
+  };
+  # Optimse the store to save disk space.
+  # Do not auto-optimise on macOS. Too many issues: https://github.com/NixOS/nix/issues/7273
+  nix.optimise.automatic = pkgs.stdenv.isLinux;
+  nix.settings.auto-optimise-store = pkgs.stdenv.isLinux;
   nix.extraOptions = ''
     always-allow-substitutes = true
     min-free = ${toString (10 * 1024 * 1024 * 1024)}
