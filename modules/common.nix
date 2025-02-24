@@ -9,8 +9,14 @@
   # Run GC every hour
   nix.gc = {
     automatic = true;
+    options = "--delete-older-than 30d";
+  } // lib.optionalAttrs pkgs.stdenv.isLinux {
     dates = "*:00";
     randomizedDelaySec = "1800";
+  } // lib.optionalAttrs pkgs.stdenv.isDarwin {
+    interval =  {
+      Minute = 0;
+    };
   };
   # Optimse the store to save disk space.
   # Do not auto-optimise on macOS. Too many issues: https://github.com/NixOS/nix/issues/7273
