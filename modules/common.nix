@@ -17,6 +17,8 @@
     interval =  {
       Minute = 0;
     };
+    # Our macOS install is single-user, so we can't run GC as root.
+    user = "hetzner";
   };
   # Optimse the store to save disk space.
   # Do not auto-optimise on macOS. Too many issues: https://github.com/NixOS/nix/issues/7273
