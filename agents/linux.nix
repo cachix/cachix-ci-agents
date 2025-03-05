@@ -13,17 +13,17 @@
     extraGroups = [ "docker" ];
 
     runners.default = {
-        enable = true;
-        count = 4;
-        githubOrganization = "cachix";
-        namePrefix = "cachix-${pkgs.stdenv.system}-";
-        tokenFile = config.age.secrets.github-runner-token.path;
-        extraPackages = [ pkgs.devenv ];
-        serviceOverrides = {
-          ReadWritePaths = [
-            (toString config.age.secrets.nix-access-tokens.path)
-          ];
-        };
+      enable = true;
+      count = 4;
+      githubOrganization = "cachix";
+      namePrefix = "cachix-${pkgs.stdenv.system}-";
+      tokenFile = config.age.secrets.github-runner-token.path;
+      extraPackages = [ pkgs.devenv ];
+      serviceOverrides = {
+        ReadWritePaths = [
+          (toString config.age.secrets.nix-access-tokens.path)
+        ];
+      };
     };
   };
 
