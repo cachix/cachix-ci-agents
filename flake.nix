@@ -126,6 +126,7 @@
           # TODO: This should also be set for bootstrapping
           boot.loader.grub.efiSupport = lib.mkForce false;
           boot.loader.grub.efiInstallAsRemovable = lib.mkForce false;
+          boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
 
           users.users.root.openssh.authorizedKeys.keys = builtins.attrValues sshPubKeys;
         };
