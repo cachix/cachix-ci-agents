@@ -151,6 +151,7 @@ in
                 procps
                 time
                 zstd
+                unzip
                 util-linux
                 which
                 nix
