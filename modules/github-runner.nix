@@ -148,6 +148,7 @@ in
                 less
                 ncurses
                 netcat
+                nodejs_20
                 procps
                 time
                 zstd
