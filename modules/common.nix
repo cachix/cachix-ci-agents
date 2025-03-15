@@ -6,6 +6,7 @@
   #
   # Unstable currently patches curl 8.11.1 to fix one of the netrc bugs that breaks cachix.
   nix.package = pkgs.unstable.nixVersions.nix_2_26;
+  nix.channel.enable = false;
   # Run GC every hour
   nix.gc = {
     automatic = true;
