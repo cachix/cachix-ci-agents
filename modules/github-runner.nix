@@ -125,6 +125,7 @@ in
                 tmate
                 jq
                 git
+                gh
                 # nixos
                 openssh
                 coreutils-full
