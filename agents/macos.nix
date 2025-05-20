@@ -38,9 +38,6 @@
     eval "$(direnv hook zsh)"
   '';
 
-  # Auto upgrade nix package and the daemon service.
-  services.nix-daemon.enable = true;
-
   # Disable check for nixbld uid range.
   ids.uids.nixbld = 300;
 
