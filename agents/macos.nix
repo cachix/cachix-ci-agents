@@ -11,6 +11,11 @@
   networking.hostName = "macos";
   services.cachix-agent.enable = true;
 
+  # Disable Touch ID and Watch ID pam integrations.
+  # There's a permission error writing to /etc/pam.d.
+  # Could be SIP related? We run our agent as root.
+  security.pam.services.sudo_local.enable = false;
+
   cachix.github-runners = {
     runners."aarch64-darwin" = {
       enable = true;
