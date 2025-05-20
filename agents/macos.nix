@@ -22,7 +22,7 @@
     };
 
     runners."x86_64-darwin" = {
-      enable = true;
+      enable = false;
       count = 2;
       rosetta.enable = true;
       githubOrganization = "cachix";
