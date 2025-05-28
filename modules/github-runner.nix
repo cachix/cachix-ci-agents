@@ -181,6 +181,19 @@ in
                 Restart = lib.mkForce "always";
                 RestartSec = "30s";
               })
+              (lib.optionalAttrs pkgs.stdenv.isDarwin {
+                KeepAlive = {
+                  # Restart the service if it crashes
+                  # TODO: figure out if we can wait for the token to be available.
+                  # launchd doesn't allow ordering of jobs.
+                  # I think what's happening is that the agenix job isn't done before we launch the runner, which then isn't restarted.
+                  # Some runners make it in time, some don't.
+                  # We can use wait4path, but that's not easy to work into the existing module.
+                  Crashed = true;
+                  # Restart after run if ephemeral
+                  SuccessfulExit = true;
+                };
+              })
               cfg.serviceOverrides
             ];
           }
