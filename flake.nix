@@ -13,7 +13,7 @@
     };
 
     darwin = {
-      url = "github:LnL7/nix-darwin/nix-darwin-25.05";
+      url = "github:sandydoo/nix-darwin/runner-25.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
