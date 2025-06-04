@@ -189,6 +189,11 @@ in
                 # Some runners make it in time, some don't.
                 # We can use wait4path, but that's not easy to work into the existing module.
                 KeepAlive = lib.mkForce true;
+
+                # Don't run on load.
+                # Wait for agenix to create the token and use that as a trigger.
+                # The token is automatically added to WatchPaths.
+                RunAtLoad = lib.mkForce false;
               })
               cfg.serviceOverrides
             ];
