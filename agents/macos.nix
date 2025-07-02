@@ -6,7 +6,10 @@
     ../modules/github-runner.nix
   ];
 
-  nix.settings.trusted-users = ["hetzner"];
+  nix.settings = {
+    extra-platforms = [ "aarch64-darwin" "x86_64-darwin" ];
+    trusted-users = ["hetzner"];
+  };
 
   networking.hostName = "macos";
   services.cachix-agent.enable = true;
