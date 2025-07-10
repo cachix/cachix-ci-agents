@@ -7,7 +7,7 @@
   # Run GC every hour
   nix.gc = {
     automatic = true;
-    options = "--delete-older-than 30d";
+    options = "--delete-older-than 3d";
   } // lib.optionalAttrs pkgs.stdenv.isLinux {
     dates = "*:00";
     randomizedDelaySec = "1800";
@@ -28,8 +28,6 @@
 
   nix.extraOptions = ''
     always-allow-substitutes = true
-    min-free = ${toString (10 * 1024 * 1024 * 1024)}
-    max-free = ${toString (30 * 1024 * 1024 * 1024)}
     extra-experimental-features = flakes nix-command
     !include ${config.age.secrets.nix-access-tokens.path}
   '';
