@@ -259,5 +259,10 @@ in
     })
     # The nix-darwin module already creates the user and group.
     # TODO: create macOS users as well to have consistency
+    (lib.mkIf (pkgs.stdenv.isDarwin) {
+      # TODO: /private/var and /var are the same, but a recent software upgrade triggers a nix-darwin assertion.
+      # The thome path for this user was changed from /var/ to /private/var.
+      users."_github-runner".home = "/private/var/lib/github-runners";
+    })
   ];
 }
