@@ -262,7 +262,7 @@ in
     (lib.mkIf (pkgs.stdenv.isDarwin) {
       # TODO: /private/var and /var are the same, but a recent software upgrade triggers a nix-darwin assertion.
       # The thome path for this user was changed from /var/ to /private/var.
-      users."_github-runner".home = "/private/var/lib/github-runners";
+      users."_github-runner".home = lib.mkForce "/private/var/lib/github-runners";
     })
   ];
 }
