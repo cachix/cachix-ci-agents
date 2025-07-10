@@ -8,6 +8,12 @@ on:
     branches:
       - main
 
+# PRs: cancel previous run on push.
+# main: run sequentially, waiting for previous run.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 env:
   CACHE_NAME: cachix-ci-agents
 
