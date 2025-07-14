@@ -27,5 +27,8 @@
     };
   };
 
+  # For certain services, like clickhouse.
+  time.timeZone = lib.mkDefault "UTC";
+
   system.stateVersion = "23.11";
 }
