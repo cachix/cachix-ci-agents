@@ -43,11 +43,6 @@
     eval "$(direnv hook zsh)"
   '';
 
-  # Disable check for nixbld uid range.
-  # WARN: remove after re-bootstrapping machine.
-  ids.uids.nixbld = 300;
-  ids.gids.nixbld = 30000;
-
   # for some reason manual isn't reproducible so we disable it
   documentation.man.enable = lib.mkForce false;
   documentation.info.enable = lib.mkForce false;
