@@ -116,15 +116,15 @@
         ]
       },
       "locked": {
-        "lastModified": 1749052555,
-        "narHash": "sha256-xaQFFzvdiG7zk0xWdlTHrl/Ah4r3jDwlMXOKzDmZFb8=",
-        "owner": "sandydoo",
+        "lastModified": 1755523764,
+        "narHash": "sha256-6F0IyFFCh9pEaHuUA6ASQvIzz/d7LjWNPAa0y6kIM6Q=",
+        "owner": "cachix",
         "repo": "nix-darwin",
-        "rev": "b5c6d1df3a47c5733ef3b1981135a3289c1299ed",
+        "rev": "e1e09e33313010006cf7a02241f9227822848cf1",
         "type": "github"
       },
       "original": {
-        "owner": "sandydoo",
+        "owner": "cachix",
         "ref": "runner-25.05",
         "repo": "nix-darwin",
         "type": "github"
@@ -546,16 +546,16 @@
     },
     "nixpkgs_3": {
       "locked": {
-        "lastModified": 1755274400,
-        "narHash": "sha256-rTInmnp/xYrfcMZyFMH3kc8oko5zYfxsowaLv1LVobY=",
-        "owner": "NixOS",
+        "lastModified": 1755601313,
+        "narHash": "sha256-sZ6BwUsflxZFkYsxTxoEEal7dPP9DTf7GOmuiHbuU4s=",
+        "owner": "cachix",
         "repo": "nixpkgs",
-        "rev": "ad7196ae55c295f53a7d1ec39e4a06d922f3b899",
+        "rev": "762833933805be4eb7693a1999f5bc2b5e4b6ce5",
         "type": "github"
       },
       "original": {
-        "owner": "NixOS",
-        "ref": "nixos-25.05",
+        "owner": "cachix",
+        "ref": "runner-25.05",
         "repo": "nixpkgs",
         "type": "github"
       }
