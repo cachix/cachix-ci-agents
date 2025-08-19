@@ -2,7 +2,8 @@
   description = "Cachix CI Agents";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
+    # Patched github-runner for issues not yet upstreamed
+    nixpkgs.url = "github:cachix/nixpkgs/runner-25.05";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     devenv.url = "github:cachix/devenv/latest";
 
@@ -13,7 +14,8 @@
     };
 
     darwin = {
-      url = "github:sandydoo/nix-darwin/runner-25.05";
+      # Patched github-runner for issues not yet upstreamed
+      url = "github:cachix/nix-darwin/runner-25.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -52,7 +54,7 @@
     ];
   };
 
-  outputs = { self, devenv, nixpkgs, nixpkgs-unstable, cachix-deploy-flake, cachix-flake, srvos, disko, agenix, ... }:
+  outputs = { self, devenv, nixpkgs, nixpkgs-unstable, cachix-deploy-flake, cachix-flake, srvos, disko, agenix, ... } @ inputs:
     let
       linuxMachineName = "linux";
       sshPubKeys = {
