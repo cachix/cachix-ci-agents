@@ -95,16 +95,16 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1752264895,
-        "narHash": "sha256-1zBPE/PNAkPNUsOWFET4J0cjlvziH8DOekesDmjND+w=",
+        "lastModified": 1755612559,
+        "narHash": "sha256-4vYHqm4/fCf2CTf2k6D2mAX7lNhFtmBF4yfbnRXXuU8=",
         "owner": "cachix",
         "repo": "cachix",
-        "rev": "47053aef762f452e816e44eb9a23fbc3827b241a",
+        "rev": "578c55a356fa2378dbe5f1344d4e4f2f6f466b4d",
         "type": "github"
       },
       "original": {
         "owner": "cachix",
-        "ref": "latest",
+        "ref": "feat-deamon-batch-narinfo",
         "repo": "cachix",
         "type": "github"
       }
