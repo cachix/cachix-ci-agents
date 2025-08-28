@@ -116,11 +116,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1755523764,
-        "narHash": "sha256-6F0IyFFCh9pEaHuUA6ASQvIzz/d7LjWNPAa0y6kIM6Q=",
+        "lastModified": 1756390649,
+        "narHash": "sha256-Rd/GzJVExRChKDpfhBJBMvLbNsYXRRl3QNirm/dcTZo=",
         "owner": "cachix",
         "repo": "nix-darwin",
-        "rev": "e1e09e33313010006cf7a02241f9227822848cf1",
+        "rev": "b01ca5ff38f2d912ccc9e6834d6579e8d0584127",
         "type": "github"
       },
       "original": {
