@@ -1,7 +1,7 @@
 { config, pkgs, lib, ... }:
 
 {
-  nix.package = pkgs.nixVersions.nix_2_28;
+  nix.package = pkgs.unstable.nixVersions.latest;
   nix.channel.enable = false;
 
   # Run GC every hour
