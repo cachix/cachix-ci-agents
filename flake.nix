@@ -2,8 +2,7 @@
   description = "Cachix CI Agents";
 
   inputs = {
-    # Patched github-runner for issues not yet upstreamed
-    nixpkgs.url = "github:cachix/nixpkgs/runner-25.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     devenv.url = "github:cachix/devenv/latest";
 
@@ -14,8 +13,7 @@
     };
 
     darwin = {
-      # Patched github-runner for issues not yet upstreamed
-      url = "github:cachix/nix-darwin/runner-25.05";
+      url = "github:nix-darwin/nix-darwin/nix-darwin-25.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
