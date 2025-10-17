@@ -25,7 +25,7 @@
     };
 
     cachix-flake = {
-      url = "github:cachix/cachix/feat-deamon-batch-narinfo";
+      url = "github:cachix/cachix";
       # inputs.nixpkgs.follows = "nixpkgs";
       inputs.devenv.follows = "devenv";
     };
