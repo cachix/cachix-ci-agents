@@ -18,6 +18,12 @@ let
   ];
 in
 {
+  # PAT for runner registration
+  # https://github.com/settings/personal-access-tokens/new
+  #
+  # Resource owner: cachix
+  # Organization permissions: Self-hosted runners (read and write)
+  # Expires: 23/12/2026
   "github-runner-token.age".publicKeys = admins ++ servers;
 
   # extra-access-tokens for Nix. Includes:
