@@ -1,7 +1,19 @@
 { config, pkgs, lib, ... }:
 
 {
-  nix.package = pkgs.unstable.nixVersions.latest;
+  nix.package = pkgs.unstable.nixVersions.latest.overrideScope (final: prev: {
+    nix-store = prev.nix-store.overrideAttrs (old: {
+      patches = (old.patches or []) ++ [
+        # fix: re-check temp roots before deletion in GC to prevent race
+        # https://github.com/cachix/nix/commit/80dd955222b90347fa7bfc745eba073e6f4e187c
+        (pkgs.fetchpatch {
+          url = "https://github.com/cachix/nix/commit/80dd955222b90347fa7bfc745eba073e6f4e187c.diff";
+          stripLen = 2;
+          hash = "sha256-ZQIeGSlUdqBeVhw6Hxu6/CnaJa8VNhZTcgKPgdaQo98=";
+        })
+      ];
+    });
+  });
   nix.channel.enable = false;
 
   # Run GC every hour
