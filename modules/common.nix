@@ -11,6 +11,13 @@
           stripLen = 2;
           hash = "sha256-ZQIeGSlUdqBeVhw6Hxu6/CnaJa8VNhZTcgKPgdaQo98=";
         })
+        # fix: add temp roots for references before auto-GC to prevent race
+        # https://github.com/cachix/nix/commit/173744a5efff29f62acc5a538eaedded0a73c996
+        (pkgs.fetchpatch {
+          url = "https://github.com/cachix/nix/commit/173744a5efff29f62acc5a538eaedded0a73c996.diff";
+          stripLen = 2;
+          hash = "sha256-og/hrYHLja1WGo6Ufz4fuV6WtwA+YNdekjTr2jLTWFc=";
+        })
       ];
     });
   });
