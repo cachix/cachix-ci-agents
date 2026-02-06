@@ -9,7 +9,7 @@
         (pkgs.fetchpatch {
           url = "https://github.com/NixOS/nix/commit/31f1cde215fa8906cebf367237d00b41a8870d44.diff";
           stripLen = 2;
-          hash = "sha256-VLiwok9KJtFhc6hvWDjqEK+9EELrQdBCxYlbtSU7hsg=";
+          hash = "sha256-+dfQaQ08zVCIb/RCqS0A3gcg9EYwea4flj9MtQE27iA=";
         })
       ];
     });
