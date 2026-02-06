@@ -4,19 +4,12 @@
   nix.package = pkgs.unstable.nixVersions.latest.overrideScope (final: prev: {
     nix-store = prev.nix-store.overrideAttrs (old: {
       patches = (old.patches or []) ++ [
-        # fix: re-check temp roots before deletion in GC to prevent race
-        # https://github.com/cachix/nix/commit/80dd955222b90347fa7bfc745eba073e6f4e187c
+        # fix: add temp roots in writeDerivation to prevent GC race
+        # https://github.com/NixOS/nix/pull/15158
         (pkgs.fetchpatch {
-          url = "https://github.com/cachix/nix/commit/80dd955222b90347fa7bfc745eba073e6f4e187c.diff";
+          url = "https://github.com/NixOS/nix/commit/31f1cde215fa8906cebf367237d00b41a8870d44.diff";
           stripLen = 2;
-          hash = "sha256-ZQIeGSlUdqBeVhw6Hxu6/CnaJa8VNhZTcgKPgdaQo98=";
-        })
-        # fix: add temp roots for references before auto-GC to prevent race
-        # https://github.com/cachix/nix/commit/173744a5efff29f62acc5a538eaedded0a73c996
-        (pkgs.fetchpatch {
-          url = "https://github.com/cachix/nix/commit/173744a5efff29f62acc5a538eaedded0a73c996.diff";
-          stripLen = 2;
-          hash = "sha256-og/hrYHLja1WGo6Ufz4fuV6WtwA+YNdekjTr2jLTWFc=";
+          hash = "sha256-VLiwok9KJtFhc6hvWDjqEK+9EELrQdBCxYlbtSU7hsg=";
         })
       ];
     });
