@@ -4,6 +4,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nix.url = "github:NixOS/nix/ac2dd58b6f577e2727abb4c79c8d886a773fe5bb";
     devenv.url = "github:cachix/devenv/latest";
 
     agenix = {
@@ -71,6 +72,7 @@
               cachix = cachix-flake.packages.${system}.default;
               devenv = devenv.packages.${system}.devenv;
               unstable = nixpkgs-unstable.legacyPackages.${system};
+              nix-latest = inputs.nix.packages.${system}.default;
             } // lib.optionalAttrs (system == "aarch64-darwin") {
               devenv-x86 = devenv.packages.x86_64-darwin.devenv;
             })

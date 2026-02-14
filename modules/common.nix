@@ -1,19 +1,9 @@
 { config, pkgs, lib, ... }:
 
 {
-  nix.package = pkgs.unstable.nixVersions.latest.overrideScope (final: prev: {
-    nix-store = prev.nix-store.overrideAttrs (old: {
-      patches = (old.patches or []) ++ [
-        # fix: add temp roots in writeDerivation to prevent GC race
-        # https://github.com/NixOS/nix/pull/15158
-        (pkgs.fetchpatch {
-          url = "https://github.com/NixOS/nix/commit/31f1cde215fa8906cebf367237d00b41a8870d44.diff";
-          stripLen = 2;
-          hash = "sha256-+dfQaQ08zVCIb/RCqS0A3gcg9EYwea4flj9MtQE27iA=";
-        })
-      ];
-    });
-  });
+  # fix: add missing temproots for cached sources and existing derivations
+  # https://github.com/NixOS/nix/pull/15237
+  nix.package = pkgs.nix-latest;
   nix.channel.enable = false;
 
   # Run GC every hour
