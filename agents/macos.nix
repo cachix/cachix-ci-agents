@@ -10,6 +10,7 @@
 
   networking.hostName = "macos";
   services.cachix-agent.enable = true;
+  services.openssh.enable = true;
 
   # Disable Touch ID and Watch ID pam integrations.
   # There's a permission error writing to /etc/pam.d.
