@@ -210,7 +210,13 @@ in
           (lib.mkIf pkgs.stdenv.isLinux {
             user = runnerName;
             # Default workDir is under RuntimeDirectory, which is backed by tmpfs.
-            workDir = "%S/github-runner/${runnerName}";
+            # Use a separate StateDirectory for workDir to avoid self-referential
+            # symlinks (NixOS/nixpkgs#289422).
+            serviceOverrides.StateDirectory = [
+              "github-runner/${runnerName}"
+              "github-runner-work/${runnerName}"
+            ];
+            workDir = "/var/lib/github-runner-work/${runnerName}";
           })
           cfg.extraService
         ]
