@@ -207,7 +207,11 @@ in
               ''}";
             };
           })
-          (lib.mkIf pkgs.stdenv.isLinux { user = runnerName; })
+          (lib.mkIf pkgs.stdenv.isLinux {
+            user = runnerName;
+            # Default workDir is under RuntimeDirectory, which is backed by tmpfs.
+            workDir = "%S/github-runner/${runnerName}";
+          })
           cfg.extraService
         ]
       )
@@ -249,7 +253,7 @@ in
             # On the other hand, systemd DynamicUser=1 sets it to /, which results into ...
             # a lot of confusion.
             # we set home entry in nss to match $HOME
-            home = "/run/github-runner/${runnerName}";
+            home = "/var/lib/github-runner/${runnerName}";
 
             # Allow interactive shells (e.g. nix shell)
             useDefaultShell = true;
