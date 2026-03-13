@@ -1,8 +1,6 @@
 { config, pkgs, lib, ... }:
 
 {
-  # fix: add missing temproots for cached sources and existing derivations
-  # https://github.com/NixOS/nix/pull/15237
   nix.package = pkgs.nix-latest;
   nix.channel.enable = false;
 
