@@ -1,0 +1,11 @@
+--- a/fetchers.cc	2026-03-18 17:06:12.374220002 +0000
++++ b/fetchers.cc	2026-03-18 17:06:12.387219801 +0000
+@@ -328,6 +328,8 @@
+         try {
+             auto storePath = computeStorePath(*store);
+ 
++            store->addTempRoot(storePath);
++
+             store->ensurePath(storePath);
+ 
+             debug("using substituted/cached input '%s' in '%s'", to_string(), store->printStorePath(storePath));

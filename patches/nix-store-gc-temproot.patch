@@ -1,0 +1,34 @@
+--- a/gc.cc	2026-03-18 17:00:31.234793466 +0000
++++ b/gc.cc	2026-03-18 17:00:37.495718751 +0000
+@@ -58,8 +58,8 @@
+ 
+     while (1) {
+         if (pathExists(fnTempRoots))
+-            /* It *must* be stale, since there can be no two
+-               processes with the same pid. */
++            /* The file is stale since each LocalStore instance
++               uses a unique filename (pid + counter). */
+             unlink(fnTempRoots.c_str());
+ 
+         *fdTempRoots = openLockFile(fnTempRoots, true);
+
+--- a/local-store.cc	2026-03-18 17:00:31.236793431 +0000
++++ b/local-store.cc	2026-03-18 17:00:44.016671825 +0000
+@@ -114,6 +114,8 @@
+     SQLiteStmt AddRealisationReference;
+ };
+ 
++static std::atomic<unsigned int> nrLocalStores{0};
++
+ LocalStore::LocalStore(ref<const Config> config)
+     : Store{*config}
+     , LocalFSStore{*config}
+@@ -123,7 +125,7 @@
+     , reservedPath(dbDir + "/reserved")
+     , schemaPath(dbDir + "/schema")
+     , tempRootsDir(config->stateDir + "/temproots")
+-    , fnTempRoots(fmt("%s/%d", tempRootsDir, getpid()))
++    , fnTempRoots(fmt("%s/%d-%d", tempRootsDir, getpid(), nrLocalStores++))
+ {
+     auto state(_state.lock());
+     state->stmts = std::make_unique<State::Stmts>();
