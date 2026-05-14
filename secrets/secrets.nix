@@ -26,7 +26,9 @@ in
   # Expires: 23/12/2026
   "github-runner-token.age".publicKeys = admins ++ servers;
 
-  # extra-access-tokens for Nix. Includes:
-  #   - github.com basic token. @sandydoo Expires: 15/10/2026
+  # extra-access-tokens for Nix.
+  # Use a classic token to work around NixOS fine-grained expiriration policy (90 days).
+  # Includes:
+  #   - github.com basic token. @sandydoo Expires: 15/05/2027
   "nix-access-tokens.age".publicKeys = admins ++ servers;
 }
