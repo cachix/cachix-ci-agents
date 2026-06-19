@@ -117,6 +117,7 @@ in
             replace = true;
             # Re-launch the runner after each job.
             ephemeral = true;
+            nodeRuntimes = [ "node20" "node24" ];
             extraPackages =
               with (if cfg.rosetta.enable then pkgs.pkgsx86_64Darwin else pkgs);
               [
