@@ -96,11 +96,11 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1777648145,
-        "narHash": "sha256-pJGka1jWBVuKW06N4KnS2DAi5AhBMzPGWFf4B5CFIfo=",
+        "lastModified": 1781970960,
+        "narHash": "sha256-MYd3z0rl1kHK7lWW/d+mgdqPjaUtOhtG+5yz+bN2PGY=",
         "owner": "cachix",
         "repo": "cachix",
-        "rev": "e2cf0e207cb60617a6acfda631ae53266e167260",
+        "rev": "160cf8fc3db2b4531642da86b31df1abeaad6929",
         "type": "github"
       },
       "original": {
