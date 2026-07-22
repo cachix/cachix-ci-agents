@@ -6,7 +6,11 @@
     ../modules/github-runner.nix
   ];
 
-  nix.settings.trusted-users = ["hetzner"];
+  nix.settings = {
+    cores = 2;
+    max-jobs = 4;
+    trusted-users = [ "hetzner" ];
+  };
 
   networking.hostName = "macos";
   services.cachix-agent.enable = true;
