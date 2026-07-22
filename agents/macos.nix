@@ -44,6 +44,15 @@
     eval "$(direnv hook zsh)"
   '';
 
+  # Spotlight indexing is useless on a headless CI machine and burns
+  # CPU/disk churning through runner workdirs and nix store paths.
+  system.activationScripts.postActivation.text = ''
+    printf "disabling spotlight indexing... "
+    mdutil -a -i off &> /dev/null || true
+    mdutil -a -E &> /dev/null || true
+    echo "ok"
+  '';
+
   # for some reason manual isn't reproducible so we disable it
   documentation.man.enable = lib.mkForce false;
   documentation.info.enable = lib.mkForce false;
