@@ -1,9 +1,16 @@
-{ config, pkgs, lib, ... }:
+# Reusable role for a Linux GitHub Actions runner. Shared by every
+# Linux CI agent, regardless of which physical/virtual host it runs on.
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   imports = [
-    ../modules/common.nix
-    ../modules/github-runner.nix
+    ./common.nix
+    ./github-runner.nix
   ];
 
   virtualisation.docker.enable = true;

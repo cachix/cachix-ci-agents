@@ -1,18 +1,25 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
-  nix.package = pkgs.nix-latest;
+  nix.package = pkgs.nix-ci;
   nix.channel.enable = false;
 
   # Run GC every hour
   nix.gc = {
     automatic = true;
     options = "--delete-older-than 3d";
-  } // lib.optionalAttrs pkgs.stdenv.isLinux {
+  }
+  // lib.optionalAttrs pkgs.stdenv.isLinux {
     dates = "*:00";
     randomizedDelaySec = "1800";
-  } // lib.optionalAttrs pkgs.stdenv.isDarwin {
-    interval =  {
+  }
+  // lib.optionalAttrs pkgs.stdenv.isDarwin {
+    interval = {
       Minute = 0;
     };
   };

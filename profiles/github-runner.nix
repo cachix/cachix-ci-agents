@@ -117,7 +117,10 @@ in
             replace = true;
             # Re-launch the runner after each job.
             ephemeral = true;
-            nodeRuntimes = [ "node20" "node24" ];
+            nodeRuntimes = [
+              "node20"
+              "node24"
+            ];
             extraPackages =
               with (if cfg.rosetta.enable then pkgs.pkgsx86_64Darwin else pkgs);
               [
@@ -201,7 +204,11 @@ in
           }
           (lib.mkIf cfg.rosetta.enable {
             noDefaultLabels = true;
-            extraLabels = [ "self-hosted" "X64" "macOS" ];
+            extraLabels = [
+              "self-hosted"
+              "X64"
+              "macOS"
+            ];
             extraEnvironment = {
               "NIX_USER_CONF_FILES" = "${pkgs.writeText "x86-nix-user-conf" ''
                 system = x86_64-darwin
@@ -227,11 +234,12 @@ in
 
   config.nix.settings = lib.mkIf anyRunnerEnabled {
     trusted-users =
-      if pkgs.stdenv.isLinux
-      then [ "@${cfg.group}" ]
-      else if pkgs.stdenv.isDarwin
-      then [ "_github-runner" ]
-      else [ ];
+      if pkgs.stdenv.isLinux then
+        [ "@${cfg.group}" ]
+      else if pkgs.stdenv.isDarwin then
+        [ "_github-runner" ]
+      else
+        [ ];
   };
 
   config.users = lib.mkMerge [

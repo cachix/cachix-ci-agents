@@ -1,18 +1,21 @@
-{ config, pkgs, lib, ... }:
+# Reusable role for a macOS GitHub Actions runner, deployed as the
+# "hetzner" user via cachix-deploy. Machine-specific tuning (hardware
+# limits, hostname, ...) lives in the machine's own configuration.
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   imports = [
-    ../modules/common.nix
-    ../modules/github-runner.nix
+    ./common.nix
+    ./github-runner.nix
   ];
 
-  nix.settings = {
-    cores = 2;
-    max-jobs = 4;
-    trusted-users = [ "hetzner" ];
-  };
+  nix.settings.trusted-users = [ "hetzner" ];
 
-  networking.hostName = "macos";
   services.cachix-agent.enable = true;
   services.openssh.enable = true;
 
