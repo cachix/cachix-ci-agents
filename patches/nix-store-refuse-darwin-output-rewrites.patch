@@ -1,0 +1,91 @@
+diff --git a/unix/build/derivation-builder.cc b/unix/build/derivation-builder.cc
+index fe17d2a5c..f580d102f 100644
+--- a/unix/build/derivation-builder.cc
++++ b/unix/build/derivation-builder.cc
+@@ -1631,6 +1631,86 @@ SingleDrvOutputs DerivationBuilderImpl::registerOutputs()
+         auto rewriteOutput = [&](const StringMap & rewrites) {
+             /* Apply hash rewriting if necessary. */
+             if (!rewrites.empty()) {
++#ifdef __APPLE__
++                /* Refuse rather than corrupt: rewriting store path hashes
++                   inside a Mach-O binary invalidates the page hashes of its
++                   ad-hoc code signature, and the kernel then kills the
++                   binary at exec with SIGKILL (Code Signature Invalid).
++                   See https://github.com/NixOS/nix/issues/6065 and
++                   https://github.com/NixOS/nixpkgs/issues/507531.
++
++                   Rewriting happens when an output was built at a scratch
++                   path, i.e. when some outputs of this derivation were
++                   already valid in the store at build start while others
++                   were missing, or under --check, or for content-addressed
++                   outputs.  Scan which regular files contain a hash to be
++                   rewritten: if none do, the rewrite is a byte-for-byte
++                   no-op and is skipped; if any such file is Mach-O, fail
++                   loudly instead of corrupting it; rewrites confined to
++                   non-Mach-O files (scripts, pkg-config files, ...) are
++                   harmless and proceed as before.  Deleting the
++                   already-valid sibling outputs, or substituting all
++                   outputs from a cache, avoids the rewrite entirely. */
++                {
++                    static constexpr std::string_view machOMagics[] = {
++                        "\xfe\xed\xfa\xce", "\xce\xfa\xed\xfe", /* MH_MAGIC */
++                        "\xfe\xed\xfa\xcf", "\xcf\xfa\xed\xfe", /* MH_MAGIC_64 */
++                        "\xca\xfe\xba\xbe", "\xbe\xba\xfe\xca", /* FAT_MAGIC */
++                        "\xca\xfe\xba\xbf", "\xbf\xba\xfe\xca", /* FAT_MAGIC_64 */
++                    };
++                    bool anyHit = false;
++                    Strings machOHits;
++                    auto containsHash = [&](const std::string & s) {
++                        for (auto & [from, to] : rewrites)
++                            if (s.find(from) != std::string::npos)
++                                return true;
++                        return false;
++                    };
++                    auto scanFile = [&](const std::filesystem::path & p) {
++                        auto contents = readFile(p.string());
++                        if (!containsHash(contents))
++                            return;
++                        anyHit = true;
++                        auto head = std::string_view(contents).substr(0, 4);
++                        for (auto & magic : machOMagics)
++                            if (head == magic) {
++                                machOHits.push_back(p.string());
++                                break;
++                            }
++                    };
++                    auto st = std::filesystem::symlink_status(actualPath);
++                    if (st.type() == std::filesystem::file_type::regular)
++                        scanFile(actualPath);
++                    else if (st.type() == std::filesystem::file_type::symlink)
++                        anyHit = anyHit || containsHash(std::filesystem::read_symlink(actualPath).string());
++                    else if (st.type() == std::filesystem::file_type::directory)
++                        for (auto & entry : std::filesystem::recursive_directory_iterator(actualPath)) {
++                            /* The NAR rewrite also covers entry names and
++                               symlink targets, so they count as hits too. */
++                            if (containsHash(entry.path().filename().string()))
++                                anyHit = true;
++                            auto t = entry.symlink_status().type();
++                            if (t == std::filesystem::file_type::regular)
++                                scanFile(entry.path());
++                            else if (t == std::filesystem::file_type::symlink
++                                     && containsHash(std::filesystem::read_symlink(entry.path()).string()))
++                                anyHit = true;
++                        }
++                    if (!anyHit)
++                        return;
++                    if (!machOHits.empty())
++                        throw BuildError(
++                            BuildResult::Failure::OutputRejected,
++                            "refusing to rewrite store path hashes inside code-signed Mach-O file(s) %s "
++                            "of output '%s' of '%s': the rewrite would invalidate their signatures and "
++                            "macOS would kill them at exec (https://github.com/NixOS/nix/issues/6065); "
++                            "delete this derivation's already-valid outputs so that all outputs rebuild "
++                            "cleanly, or substitute all outputs from a binary cache",
++                            concatStringsSep(", ", machOHits),
++                            outputName,
++                            store.printStorePath(drvPath));
++                }
++#endif
+                 debug("rewriting hashes in %1%; cross fingers", PathFmt(actualPath));
+ 
+                 /* FIXME: Is this actually streaming? */

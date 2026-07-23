@@ -84,6 +84,12 @@
                       hash = "sha256-621lqYQr5s/W62EuP4LwVxtjAg7xAPOHYRswWifU7ts=";
                     })
                     ./patches/nix-store-gc-temproot.patch
+                    # Refuse store path hash rewrites that would corrupt
+                    # signed Mach-O binaries on darwin (NixOS/nix#6065,
+                    # nixpkgs#507531). No-op rewrites are skipped, rewrites
+                    # confined to non-Mach-O files proceed as before, and
+                    # rewrites touching a Mach-O fail with OutputRejected.
+                    ./patches/nix-store-refuse-darwin-output-rewrites.patch
                   ];
                 });
                 nix-expr = sprev.nix-expr.overrideAttrs (old: {
