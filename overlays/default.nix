@@ -15,6 +15,9 @@ let
       nix-ci = final.callPackage ../pkgs/nix-ci.nix {
         nix = inputs.nixpkgs-unstable.legacyPackages.${system}.nixVersions.latest;
       };
+
+      # Skip the test-suite in case we have to build it ourselves.
+      nodejs-slim_20 = prev.nodejs-slim_20.overrideAttrs { doCheck = false; };
     };
 
   perSystem = {

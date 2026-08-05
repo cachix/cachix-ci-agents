@@ -6,8 +6,12 @@
 }:
 import nixpkgs {
   inherit system overlays;
-  config.permittedInsecurePackages = [
-    "nodejs-20.20.2"
-    "nodejs-slim-20.20.2"
-  ];
+  # The GitHub runner requires the EOL nodejs 20.
+  config.allowInsecurePredicate =
+    pkg:
+    builtins.elem (nixpkgs.lib.getName pkg) [
+      "nodejs"
+      "nodejs-slim"
+    ]
+    && nixpkgs.lib.versions.major (nixpkgs.lib.getVersion pkg) == "20";
 }
