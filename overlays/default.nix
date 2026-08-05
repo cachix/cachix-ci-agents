@@ -10,7 +10,11 @@ let
     {
       cachix = inputs.cachix-flake.packages.${system}.default;
       devenv = inputs.devenv.packages.${system}.devenv;
-      nix-ci = final.callPackage ../pkgs/nix-ci.nix { nix = prev.nix; };
+
+      # Run the latest-latest Nix
+      nix-ci = final.callPackage ../pkgs/nix-ci.nix {
+        nix = inputs.nixpkgs-unstable.legacyPackages.${system}.nixVersions.latest;
+      };
     };
 
   perSystem = {
