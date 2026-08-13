@@ -30,6 +30,10 @@ in
       boot.loader.grub.efiInstallAsRemovable = lib.mkForce false;
       boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
 
+      # Use networkd instead of dhcpcd. The latter monitors Docker's
+      # short-lived veth interfaces and can crash when they disappear.
+      networking.useNetworkd = true;
+
       users.users.root.openssh.authorizedKeys.keys = builtins.attrValues sshKeys.admins;
     }
   ];
