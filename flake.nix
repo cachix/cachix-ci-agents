@@ -3,7 +3,8 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
-    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    # Nix 2.35.2 until the package bump reaches nixpkgs-unstable.
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/9b88fef0ad376b5c08854c771cd28242f1b76df2";
     devenv.url = "github:cachix/devenv/latest";
 
     agenix = {
