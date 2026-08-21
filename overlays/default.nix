@@ -16,6 +16,8 @@ let
         nix = inputs.nixpkgs-unstable.legacyPackages.${system}.nixVersions.latest;
       };
 
+      nix-clean-stale-state = final.callPackage ../pkgs/nix-clean-stale-state.nix { };
+
       # Skip the test-suite in case we have to build it ourselves.
       nodejs-slim_20 = prev.nodejs-slim_20.overrideAttrs { doCheck = false; };
     };

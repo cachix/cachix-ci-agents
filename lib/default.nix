@@ -29,6 +29,7 @@ let
 
   defaultExtraPackagesFor = system: {
     nix-ci = (pkgsFor system).nix-ci;
+    nix-clean-stale-state = (pkgsFor system).nix-clean-stale-state;
   };
 in
 baseLib

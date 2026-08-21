@@ -8,31 +8,6 @@
   ...
 }:
 
-let
-  cleanStaleNixState = pkgs.writeShellApplication {
-    name = "nix-clean-stale-state";
-    text = ''
-      build_root=/nix/var/nix/builds
-      if [[ -d "$build_root" ]]; then
-        ${lib.getExe' pkgs.findutils "find"} "$build_root" \
-          -mindepth 1 -maxdepth 1 \
-          -type d -name 'nix-*' -mmin +1440 -print0 |
-        while IFS= read -r -d "" build_dir; do
-          if ! ${lib.getExe pkgs.lsof} "$build_dir" >/dev/null 2>&1; then
-            ${lib.getExe' pkgs.coreutils "rm"} -rf -- "$build_dir"
-          fi
-        done
-      fi
-
-      log_root=/nix/var/log/nix/drvs
-      if [[ -d "$log_root" ]]; then
-        ${lib.getExe' pkgs.findutils "find"} "$log_root" -type f -delete
-        ${lib.getExe' pkgs.findutils "find"} "$log_root" \
-          -depth -mindepth 1 -type d -empty -delete
-      fi
-    '';
-  };
-in
 {
   imports = [
     ./common.nix
@@ -90,7 +65,7 @@ in
   # remove old directories which have no open file descriptor. Build logs are
   # disabled in common.nix; clean up logs written before that setting changed.
   launchd.daemons.nix-clean-stale-state = {
-    command = lib.getExe cleanStaleNixState;
+    command = lib.getExe pkgs.nix-clean-stale-state;
 
     serviceConfig = {
       RunAtLoad = true;
