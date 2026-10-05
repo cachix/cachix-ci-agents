@@ -6,6 +6,11 @@
 }:
 
 {
+  imports = [
+    ../modules/ci-machine.nix
+    ../modules/github-runners.nix
+  ];
+
   nix.package = pkgs.nix-ci;
   nix.channel.enable = false;
 
@@ -72,5 +77,14 @@
     owner = "root";
     group = config.cachix.github-runners.group;
     mode = "440";
+  };
+
+  cachix.github-runners.runners.default = {
+    enable = true;
+    count = config.cachix.machine.runners;
+    githubOrganization = "cachix";
+    namePrefix = "${config.networking.hostName}-";
+    tokenFile = config.age.secrets.github-runner-token.path;
+    extraPackages = [ pkgs.devenv ];
   };
 }

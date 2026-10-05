@@ -17,7 +17,7 @@ builtins.mapAttrs mkMachine {
       disk = 938;
     };
     bootstrap = {
-      diskoDevices = import ../disko-mdadm.nix { disks = grubDevices; };
+      diskoDevices = import ../disko/mdadm.nix { disks = grubDevices; };
       inherit grubDevices;
       sshPubKey = sshKeys.admins.domen;
     };

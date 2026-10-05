@@ -11,7 +11,7 @@ let
       overlays = overlays.forSystem system;
     };
 
-  mkLib = args: import ./mk-lib.nix args;
+  mkLib = import ./mk-lib.nix;
 
   baseLib = mkLib {
     inherit (inputs) nixpkgs darwin cachix-deploy-flake;
@@ -31,10 +31,11 @@ let
     };
 
   defaultExtraPackagesFor = system: {
-    nix-ci = (pkgsFor system).nix-ci;
-    nix-clean-stale-state = (pkgsFor system).nix-clean-stale-state;
+    inherit (pkgsFor system) nix-ci nix-clean-stale-state;
     bootstrap-darwin = bootstrapDarwinFor system;
   };
+
+  defaultFormatterFor = system: (pkgsFor system).nixfmt;
 in
 baseLib
 // {
@@ -50,6 +51,7 @@ baseLib
       systems ? null,
       devShellFor ? defaultDevShellFor,
       extraPackagesFor ? defaultExtraPackagesFor,
+      formatterFor ? defaultFormatterFor,
     }:
     baseLib.mkFlake {
       inherit
@@ -57,6 +59,7 @@ baseLib
         systems
         devShellFor
         extraPackagesFor
+        formatterFor
         ;
     };
 }

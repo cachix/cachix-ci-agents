@@ -1,4 +1,10 @@
-{ disks ? [ "/dev/vdb" ], ... }: {
+# One disk with an EFI system partition and an ext4 root.
+{
+  disks ? [ "/dev/vdb" ],
+  ...
+}:
+
+{
   disko.devices = {
     disk = {
       vdb = {
@@ -7,7 +13,7 @@
         content = {
           type = "gpt";
           partitions = {
-            ESP =  {
+            ESP = {
               type = "EF00";
               size = "1000M";
               content = {

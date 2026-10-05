@@ -1,4 +1,4 @@
-# Reusable role for a macOS GitHub Actions runner.
+# A nix-darwin machine that runs GitHub Actions runners.
 {
   config,
   pkgs,
@@ -7,36 +7,23 @@
 }:
 
 {
-  imports = [
-    ./common.nix
-    ./github-runner.nix
-  ];
+  imports = [ ./common.nix ];
 
   # Disable Touch ID and Watch ID pam integrations.
   # There's a permission error writing to /etc/pam.d.
   # Could be SIP related? We run our agent as root.
   security.pam.services.sudo_local.enable = false;
 
-  cachix.github-runners = {
-    runners."aarch64-darwin" = {
-      enable = true;
-      count = config.cachix.machine.runners;
-      githubOrganization = "cachix";
-      namePrefix = "${config.networking.hostName}-";
-      tokenFile = config.age.secrets.github-runner-token.path;
-      extraPackages = [ pkgs.devenv ];
-    };
-
-    runners."x86_64-darwin" = {
-      enable = false;
-      count = config.cachix.machine.runners;
-      rosetta.enable = true;
-      githubOrganization = "cachix";
-      namePrefix = "${config.networking.hostName}-x86_64-";
-      servicePrefix = "x86_64-";
-      tokenFile = config.age.secrets.github-runner-token.path;
-      extraPackages = [ pkgs.devenv-x86 ];
-    };
+  # x86_64-darwin runners through Rosetta. Switched off for now.
+  cachix.github-runners.runners."x86_64-darwin" = {
+    enable = false;
+    count = config.cachix.machine.runners;
+    rosetta.enable = true;
+    githubOrganization = "cachix";
+    namePrefix = "${config.networking.hostName}-x86_64-";
+    servicePrefix = "x86_64-";
+    tokenFile = config.age.secrets.github-runner-token.path;
+    extraPackages = [ pkgs.devenv-x86 ];
   };
 
   # required on M1

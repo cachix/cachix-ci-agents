@@ -114,6 +114,7 @@ rec {
       systems ? null,
       devShellFor ? null,
       extraPackagesFor ? (_system: { }),
+      formatterFor ? null,
     }:
     let
       builtMachineAttrs = evalMachines machines;
@@ -157,5 +158,8 @@ rec {
       devShells = lib.genAttrs outputSystems (system: {
         default = devShellFor system;
       });
+    }
+    // lib.optionalAttrs (formatterFor != null) {
+      formatter = lib.genAttrs outputSystems formatterFor;
     };
 }

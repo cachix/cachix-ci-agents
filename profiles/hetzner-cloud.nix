@@ -7,7 +7,7 @@
     inputs.srvos.nixosModules.server
     inputs.srvos.nixosModules.mixins-systemd-boot
     inputs.disko.nixosModules.disko
-    (import ../disko-hetzner-cloud.nix { disks = [ "/dev/sda" ]; })
+    (import ../disko/hetzner-cloud.nix { disks = [ "/dev/sda" ]; })
   ];
 
   boot.loader.efi.canTouchEfiVariables = true;

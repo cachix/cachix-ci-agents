@@ -1,4 +1,4 @@
-# Reusable role for a Linux GitHub Actions runner.
+# A NixOS machine that runs GitHub Actions runners.
 {
   config,
   pkgs,
@@ -7,12 +7,19 @@
 }:
 
 {
-  imports = [
-    ./common.nix
-    ./github-runner.nix
-  ];
+  imports = [ ./common.nix ];
 
   virtualisation.docker.enable = true;
+
+  cachix.github-runners = {
+    extraGroups = [ "docker" ];
+
+    runners.default.serviceOverrides = {
+      ReadWritePaths = [
+        (toString config.age.secrets.nix-access-tokens.path)
+      ];
+    };
+  };
 
   # Interrupted Nix builds can leave their temporary directories behind.
   # Build logs are disabled in common.nix; clean up logs written before that
@@ -33,25 +40,6 @@
     timerConfig = {
       OnCalendar = "*-*-* 04:30:00";
       Persistent = true;
-    };
-  };
-
-  cachix.github-runners = {
-    group = "_github-runner";
-    extraGroups = [ "docker" ];
-
-    runners.default = {
-      enable = true;
-      count = config.cachix.machine.runners;
-      githubOrganization = "cachix";
-      namePrefix = "${config.networking.hostName}-";
-      tokenFile = config.age.secrets.github-runner-token.path;
-      extraPackages = [ pkgs.devenv ];
-      serviceOverrides = {
-        ReadWritePaths = [
-          (toString config.age.secrets.nix-access-tokens.path)
-        ];
-      };
     };
   };
 

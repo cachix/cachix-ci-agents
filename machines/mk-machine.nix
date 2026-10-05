@@ -35,7 +35,6 @@ in
   modules = [
     runnerProfiles.${kind}
     agenixModules.${kind}
-    ../modules/ci-machine.nix
     {
       # Also the Cachix Deploy agent name.
       networking.hostName = name;
