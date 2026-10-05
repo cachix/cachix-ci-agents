@@ -1,5 +1,6 @@
 {
   config,
+  options,
   lib,
   pkgs,
   ...
@@ -7,10 +8,18 @@
 
 let
   cfg = config.cachix.github-runners;
-  inherit (pkgs.stdenv) isLinux isDarwin;
+
+  # Avoid infinite recursion with pkgs
+  isLinux = options ? systemd;
+  isDarwin = options ? launchd;
 
   # The limit that GitHub sets for a runner name.
   maxRunnerNameLength = 64;
+
+  # Replace a setting of the upstream module.
+  # The priority sits between a normal definition (100) and `lib.mkForce`
+  # (50), so `serviceOverrides` can still force a different value.
+  overrideUpstream = lib.mkOverride 90;
 
   enabledGroups = lib.filter (group: group.enable) (lib.attrValues cfg.runners);
 
@@ -31,6 +40,9 @@ let
       }
     ) group.count
   ) enabledGroups;
+
+  # The service unit that the upstream module creates.
+  unitName = runner: "github-runner-${runner.service}";
 
   # Linux runs each runner as its own system user.
   # nix-darwin runs all runners as the `_github-runner` user that it creates.
@@ -91,36 +103,44 @@ let
     libcap
   ];
 
-  linuxServiceOverrides = runner: {
-    # Default workDir is under RuntimeDirectory, which is backed by tmpfs.
-    # Use a separate StateDirectory for workDir to avoid self-referential
-    # symlinks (NixOS/nixpkgs#289422).
-    StateDirectory = [ "github-runner-work/${runner.service}" ];
+  # Settings for the systemd unit of one runner.
+  # These merge with the upstream module and with `serviceOverrides` through
+  # the systemd option types: lists are concatenated, other values conflict.
+  linuxService = runner: {
+    serviceConfig = {
+      # Default workDir is under RuntimeDirectory, which is backed by tmpfs.
+      # Use a separate StateDirectory for workDir to avoid self-referential
+      # symlinks (NixOS/nixpkgs#289422).
+      StateDirectory = [ "github-runner-work/${runner.service}" ];
 
-    # needed for Cachix installation to work
-    ReadWritePaths = [ "/nix/var/nix/profiles/per-user/" ];
+      # needed for Cachix installation to work
+      ReadWritePaths = [ "/nix/var/nix/profiles/per-user/" ];
 
-    # Allow writing to $HOME
-    ProtectHome = "tmpfs";
+      # Allow writing to $HOME
+      ProtectHome = "tmpfs";
 
-    # Always restart, which is possible with a PAT.
-    Restart = lib.mkForce "always";
-    RestartSec = "30s";
+      # Always restart, which is possible with a PAT.
+      Restart = overrideUpstream "always";
+      RestartSec = "30s";
+    };
   };
 
-  darwinServiceOverrides = {
-    # Restart the service if it crashes
-    # TODO: figure out if we can wait for the token to be available.
-    # launchd doesn't allow ordering of jobs.
-    # I think what's happening is that the agenix job isn't done before we launch the runner, which then isn't restarted.
-    # Some runners make it in time, some don't.
-    # We can use wait4path, but that's not easy to work into the existing module.
-    KeepAlive = lib.mkForce true;
+  # Settings for the launchd daemon of one runner.
+  darwinService = _runner: {
+    serviceConfig = {
+      # Restart the service if it crashes
+      # TODO: figure out if we can wait for the token to be available.
+      # launchd doesn't allow ordering of jobs.
+      # I think what's happening is that the agenix job isn't done before we launch the runner, which then isn't restarted.
+      # Some runners make it in time, some don't.
+      # We can use wait4path, but that's not easy to work into the existing module.
+      KeepAlive = overrideUpstream true;
 
-    # Don't run on load.
-    # Wait for agenix to create the token and use that as a trigger.
-    # The token is automatically added to WatchPaths.
-    RunAtLoad = lib.mkForce false;
+      # Don't run on load.
+      # Wait for agenix to create the token and use that as a trigger.
+      # The token is automatically added to WatchPaths.
+      RunAtLoad = overrideUpstream false;
+    };
   };
 
   # Register as an x86_64 macOS runner and run Nix for x86_64-darwin.
@@ -148,7 +168,7 @@ let
       {
         enable = true;
         inherit (runner) name;
-        inherit (group) tokenFile;
+        inherit (group) tokenFile serviceOverrides;
         url = "https://github.com/${group.githubOrganization}";
         # Replace an existing runner with the same name, instead of erroring out.
         replace = true;
@@ -162,11 +182,6 @@ let
           runnerPackages (if group.rosetta.enable then pkgs.pkgsx86_64Darwin else pkgs)
           ++ lib.optionals isLinux linuxRunnerPackages
           ++ group.extraPackages;
-        serviceOverrides = lib.mkMerge [
-          (lib.mkIf isLinux (linuxServiceOverrides runner))
-          (lib.mkIf isDarwin darwinServiceOverrides)
-          group.serviceOverrides
-        ];
       }
       (lib.mkIf group.rosetta.enable rosettaRunner)
       (lib.mkIf isLinux {
@@ -265,7 +280,7 @@ in
               type = lib.types.attrs;
               default = { };
               description = ''
-                Settings for the systemd or launchd service.
+                Extra settings for the systemd or launchd service of each runner.
                 Use this to, for example, adjust the sandboxing options.
               '';
             };
@@ -310,5 +325,11 @@ in
         groups.${cfg.group}.members = [ "_github-runner" ];
       })
     ];
+  }
+  // lib.optionalAttrs isLinux {
+    systemd.services = forRunners unitName linuxService;
+  }
+  // lib.optionalAttrs isDarwin {
+    launchd.daemons = forRunners unitName darwinService;
   };
 }
