@@ -78,9 +78,9 @@ jobs:
           cat << EOF >> deploy.json
           {
             "agents": {
-              "linux": "${{ needs.build.outputs.gh-runner-x86_64-linux-01 }}",
+              "gh-runner-x86_64-linux-01": "${{ needs.build.outputs.gh-runner-x86_64-linux-01 }}",
               "aarch64-linux": "${{ needs.build.outputs.gh-runner-aarch64-linux-01 }}",
-              "macos": "${{ needs.build.outputs.gh-runner-aarch64-darwin-01 }}",
+              "gh-runner-aarch64-darwin-01": "${{ needs.build.outputs.gh-runner-aarch64-darwin-01 }}",
               "gh-runner-aarch64-darwin-02": "${{ needs.build.outputs.gh-runner-aarch64-darwin-02 }}"
             }
           }

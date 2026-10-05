@@ -11,5 +11,8 @@
   ];
 
   boot.loader.efi.canTouchEfiVariables = true;
+
+  # TODO: Remove after the deployment that changes the hostname.
+  srvos.detect-hostname-change.enable = false;
   services.openssh.settings.PermitRootLogin = "without-password";
 }
