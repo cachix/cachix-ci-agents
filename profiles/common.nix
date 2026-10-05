@@ -34,11 +34,6 @@
       "cachix-ci-agents.cachix.org-1:qVO9icjGen2UY8QnkygVYKajmjwjp3l6cHUT6t+lkHs="
     ];
 
-    # Start collecting before CI fills the store volume, and collect enough
-    # that the next few builds do not immediately trigger another GC.
-    min-free = 10 * 1024 * 1024 * 1024;
-    max-free = 20 * 1024 * 1024 * 1024;
-
     # Leave enough emergency space for SQLite and the garbage collector to
     # operate when the store volume is otherwise full.
     gc-reserved-space = 512 * 1024 * 1024;

@@ -1,6 +1,4 @@
-# Reusable role for a macOS GitHub Actions runner, deployed as the
-# "hetzner" user via cachix-deploy. Machine-specific tuning (hardware
-# limits, hostname, ...) lives in the machine's own configuration.
+# Reusable role for a macOS GitHub Actions runner.
 {
   config,
   pkgs,
@@ -14,11 +12,6 @@
     ./github-runner.nix
   ];
 
-  nix.settings.trusted-users = [ "hetzner" ];
-
-  services.cachix-agent.enable = true;
-  services.openssh.enable = true;
-
   # Disable Touch ID and Watch ID pam integrations.
   # There's a permission error writing to /etc/pam.d.
   # Could be SIP related? We run our agent as root.
@@ -27,19 +20,20 @@
   cachix.github-runners = {
     runners."aarch64-darwin" = {
       enable = true;
-      count = 2;
+      count = config.cachix.machine.runners;
       githubOrganization = "cachix";
-      namePrefix = "cachix-${pkgs.stdenv.system}-";
+      namePrefix = "${config.networking.hostName}-";
       tokenFile = config.age.secrets.github-runner-token.path;
       extraPackages = [ pkgs.devenv ];
     };
 
     runners."x86_64-darwin" = {
       enable = false;
-      count = 2;
+      count = config.cachix.machine.runners;
       rosetta.enable = true;
       githubOrganization = "cachix";
-      namePrefix = "cachix-x86_64-darwin-rosetta-";
+      namePrefix = "${config.networking.hostName}-x86_64-";
+      servicePrefix = "x86_64-";
       tokenFile = config.age.secrets.github-runner-token.path;
       extraPackages = [ pkgs.devenv-x86 ];
     };

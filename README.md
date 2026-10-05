@@ -20,17 +20,17 @@ sudo launchctl list
 
 Print detailed service status:
 ```
-sudo launchctl print system/org.nixos.github-runner-cachix-aarch64-darwin-0
+sudo launchctl print system/org.nixos.github-runner-r1
 ```
 
 Restart a service:
 ```
-sudo launchctl kickstart -k system/org.nixos.github-runner-cachix-aarch64-darwin-0
+sudo launchctl kickstart -k system/org.nixos.github-runner-r1
 ```
 
 View launchd logs for the service:
 ```
-sudo log show --last 10m | grep "org.nixos.github-runner-cachix-aarch64-darwin-0"
+sudo log show --last 10m | grep "org.nixos.github-runner-r1"
 ```
 
 #### Low disk space

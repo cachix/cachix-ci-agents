@@ -9,8 +9,9 @@
   # Host keys, used as agenix decryption targets so each machine can
   # decrypt its own secrets on activation.
   hosts = {
-    x86_64-linux = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAID1kvbA7lNc1ZL4KFjWkaEk9NxeDAbvOK0d5ElVsB9Vl";
-    aarch64-linux = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIN6Wnh5nxINijVxpjSeIPRz7boKaqQ8ocrymvJr/maP";
-    aarch64-darwin = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMU/fWaH12GbFob0ZF1Wm/jN0pcgJchQAAW+wzCS+ZzA";
+    gh-runner-x86_64-linux-01 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAID1kvbA7lNc1ZL4KFjWkaEk9NxeDAbvOK0d5ElVsB9Vl";
+    gh-runner-aarch64-linux-01 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIN6Wnh5nxINijVxpjSeIPRz7boKaqQ8ocrymvJr/maP";
+    gh-runner-aarch64-darwin-01 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMU/fWaH12GbFob0ZF1Wm/jN0pcgJchQAAW+wzCS+ZzA";
+    gh-runner-aarch64-darwin-02 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICPBbKh7W5yIL9Y6fvozhV+0IZShFZKqZwhkF4qv3Jyu";
   };
 }

@@ -1,5 +1,4 @@
-# Reusable role for a Linux GitHub Actions runner. Shared by every
-# Linux CI agent, regardless of which physical/virtual host it runs on.
+# Reusable role for a Linux GitHub Actions runner.
 {
   config,
   pkgs,
@@ -43,9 +42,9 @@
 
     runners.default = {
       enable = true;
-      count = 4;
+      count = config.cachix.machine.runners;
       githubOrganization = "cachix";
-      namePrefix = "cachix-${pkgs.stdenv.system}-";
+      namePrefix = "${config.networking.hostName}-";
       tokenFile = config.age.secrets.github-runner-token.path;
       extraPackages = [ pkgs.devenv ];
       serviceOverrides = {

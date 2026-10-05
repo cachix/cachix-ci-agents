@@ -14,6 +14,22 @@ let
       name: cfg:
       lib.mkIf cfg.enable (lib.listToAttrs (lib.genList (index: f { inherit name index cfg; }) cfg.count))
     ) runners;
+
+  # A machine has runners `r1`, `r2`, `r3`, and so on.
+  runnerId = index: "r${toString (index + 1)}";
+
+  # The name that GitHub shows.
+  mkRunnerName = cfg: index: "${cfg.namePrefix}${runnerId index}";
+
+  # A shorter systemd/launchd service name.
+  mkServiceName = cfg: index: "${cfg.servicePrefix}${runnerId index}";
+
+  enabledRunners = lib.filter (runner: runner.enable) (lib.attrValues cfg.runners);
+
+  runnerNames = lib.concatMap (runner: lib.genList (mkRunnerName runner) runner.count) enabledRunners;
+
+  # The limit that GitHub sets for a runner name.
+  maxRunnerNameLength = 64;
 in
 {
   options.cachix.github-runners = {
@@ -47,7 +63,17 @@ in
               namePrefix = lib.mkOption {
                 type = lib.types.str;
                 default = "github-runner-";
-                description = "The prefix to use for the runner name";
+                description = ''
+                  The prefix of the runner name that GitHub shows.
+                '';
+              };
+
+              servicePrefix = lib.mkOption {
+                type = lib.types.str;
+                default = "";
+                description = ''
+                  The prefix of the service name on the machine.
+                '';
               };
 
               githubOrganization = lib.mkOption {
@@ -105,12 +131,14 @@ in
         cfg,
       }:
       let
-        runnerName = "${cfg.namePrefix}${toString index}";
+        serviceName = mkServiceName cfg index;
+        userName = "github-runner-${serviceName}";
       in
-      lib.nameValuePair runnerName (
+      lib.nameValuePair serviceName (
         lib.mkMerge [
           {
             enable = cfg.enable;
+            name = mkRunnerName cfg index;
             url = "https://github.com/${cfg.githubOrganization}";
             tokenFile = cfg.tokenFile;
             # Replace an existing runner with the same name, instead of erroring out.
@@ -216,21 +244,26 @@ in
             };
           })
           (lib.mkIf pkgs.stdenv.isLinux {
-            user = runnerName;
+            user = userName;
             # Default workDir is under RuntimeDirectory, which is backed by tmpfs.
             # Use a separate StateDirectory for workDir to avoid self-referential
             # symlinks (NixOS/nixpkgs#289422).
             serviceOverrides.StateDirectory = [
-              "github-runner/${runnerName}"
-              "github-runner-work/${runnerName}"
+              "github-runner/${serviceName}"
+              "github-runner-work/${serviceName}"
             ];
-            workDir = "/var/lib/github-runner-work/${runnerName}";
+            workDir = "/var/lib/github-runner-work/${serviceName}";
           })
           cfg.extraService
         ]
       )
     )
   );
+
+  config.assertions = map (name: {
+    assertion = lib.stringLength name <= maxRunnerNameLength;
+    message = "GitHub runner name `${name}` is longer than ${toString maxRunnerNameLength} characters.";
+  }) runnerNames;
 
   config.nix.settings = lib.mkIf anyRunnerEnabled {
     trusted-users =
@@ -254,9 +287,9 @@ in
             cfg,
           }:
           let
-            runnerName = "${cfg.namePrefix}${toString index}";
+            serviceName = mkServiceName cfg index;
           in
-          lib.nameValuePair runnerName {
+          lib.nameValuePair "github-runner-${serviceName}" {
             group = config.cachix.github-runners.group;
             extraGroups = config.cachix.github-runners.extraGroups;
 
@@ -268,7 +301,7 @@ in
             # On the other hand, systemd DynamicUser=1 sets it to /, which results into ...
             # a lot of confusion.
             # we set home entry in nss to match $HOME
-            home = "/var/lib/github-runner/${runnerName}";
+            home = "/var/lib/github-runner/${serviceName}";
 
             # Allow interactive shells (e.g. nix shell)
             useDefaultShell = true;

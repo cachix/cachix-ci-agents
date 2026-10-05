@@ -27,9 +27,10 @@ jobs:
           - [macos-latest]
     runs-on: ${{ matrix.os }}
     outputs:
-      x86_64-linux: ${{ steps.agent.outputs.x86_64-linux }}
-      aarch64-darwin: ${{ steps.agent.outputs.aarch64-darwin }}
-      aarch64-linux: ${{ steps.agent.outputs.aarch64-linux }}
+      gh-runner-x86_64-linux-01: ${{ steps.agent.outputs.gh-runner-x86_64-linux-01 }}
+      gh-runner-aarch64-linux-01: ${{ steps.agent.outputs.gh-runner-aarch64-linux-01 }}
+      gh-runner-aarch64-darwin-01: ${{ steps.agent.outputs.gh-runner-aarch64-darwin-01 }}
+      gh-runner-aarch64-darwin-02: ${{ steps.agent.outputs.gh-runner-aarch64-darwin-02 }}
     steps:
       - run: sudo rm -rf /opt&
       - uses: actions/checkout@v7
@@ -44,10 +45,18 @@ jobs:
         id: agent
         run: |
           system=$(nix eval --raw --impure --expr 'builtins.currentSystem')
-          echo "Building machine for $system"
-          out_path=$(nix build -L --print-out-paths --accept-flake-config)
-          echo "Built $out_path"
-          echo "$system=$out_path" >> $GITHUB_OUTPUT
+          case "$system" in
+            x86_64-linux) machines="gh-runner-x86_64-linux-01" ;;
+            aarch64-linux) machines="gh-runner-aarch64-linux-01" ;;
+            aarch64-darwin) machines="gh-runner-aarch64-darwin-01 gh-runner-aarch64-darwin-02" ;;
+            *) echo "No machines for $system" >&2; exit 1 ;;
+          esac
+          for machine in $machines; do
+            echo "Building $machine"
+            out_path=$(nix build -L --print-out-paths --accept-flake-config ".#$machine")
+            echo "Built $out_path"
+            echo "$machine=$out_path" >> "$GITHUB_OUTPUT"
+          done
           # Wait for all paths to flush to daemon. TODO: fix upstream.
           sleep 3
 
@@ -69,9 +78,10 @@ jobs:
           cat << EOF >> deploy.json
           {
             "agents": {
-              "linux": "${{ needs.build.outputs.x86_64-linux }}",
-              "macos": "${{ needs.build.outputs.aarch64-darwin }}",
-              "aarch64-linux": "${{ needs.build.outputs.aarch64-linux }}"
+              "linux": "${{ needs.build.outputs.gh-runner-x86_64-linux-01 }}",
+              "aarch64-linux": "${{ needs.build.outputs.gh-runner-aarch64-linux-01 }}",
+              "macos": "${{ needs.build.outputs.gh-runner-aarch64-darwin-01 }}",
+              "gh-runner-aarch64-darwin-02": "${{ needs.build.outputs.gh-runner-aarch64-darwin-02 }}"
             }
           }
           EOF

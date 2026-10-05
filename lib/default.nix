@@ -18,11 +18,14 @@ let
     inherit pkgsFor;
   };
 
+  bootstrapDarwinFor = system: (pkgsFor system).callPackage ../scripts/bootstrap-darwin { };
+
   defaultDevShellFor =
     system:
     (pkgsFor system).mkShell {
       buildInputs = [
         inputs.cachix-deploy-flake.packages.${system}.bootstrapHetzner
+        (bootstrapDarwinFor system)
         inputs.agenix.packages.${system}.default
       ];
     };
@@ -30,6 +33,7 @@ let
   defaultExtraPackagesFor = system: {
     nix-ci = (pkgsFor system).nix-ci;
     nix-clean-stale-state = (pkgsFor system).nix-clean-stale-state;
+    bootstrap-darwin = bootstrapDarwinFor system;
   };
 in
 baseLib
