@@ -10,7 +10,6 @@
     agenix = {
       url = "github:ryantm/agenix";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.darwin.follows = "darwin";
     };
 
     darwin = {
@@ -23,12 +22,16 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.disko.follows = "disko";
       inputs.darwin.follows = "darwin";
+      inputs.nixos-anywhere.inputs.flake-parts.follows = "devenv/flake-parts";
+      inputs.nixos-anywhere.inputs.treefmt-nix.follows = "devenv/nixd/treefmt-nix";
     };
 
     cachix-flake = {
       url = "github:cachix/cachix";
       # inputs.nixpkgs.follows = "nixpkgs";
       inputs.devenv.follows = "devenv";
+      inputs.flake-compat.follows = "devenv/flake-compat";
+      inputs.git-hooks.follows = "devenv/git-hooks";
     };
 
     srvos = {
