@@ -29,14 +29,14 @@ let
     lib.genList (
       index:
       let
-        id = "r${toString (index + 1)}";
+        number = index + 1;
       in
       {
         inherit group;
         # The name that GitHub shows.
-        name = "${group.namePrefix}${id}";
-        # The systemd or launchd service name.
-        service = "${group.servicePrefix}${id}";
+        name = group.name number;
+        # The `services.github-runners` attribute name.
+        service = group.service number;
       }
     ) group.count
   ) enabledGroups;
@@ -46,9 +46,19 @@ let
 
   # Linux runs each runner as its own system user.
   # nix-darwin runs all runners as the `_github-runner` user that it creates.
-  linuxUser = runner: "github-runner-${runner.service}";
-  linuxHome = runner: "/var/lib/github-runner/${runner.service}";
-  linuxWorkDir = runner: "/var/lib/github-runner-work/${runner.service}";
+  linuxUser = runner: runner.group.user runner.service;
+  linuxHome = runner: runner.group.home runner.service;
+  linuxWorkDir = runner: lib.mapNullable (workDir: workDir runner.service) runner.group.workDir;
+
+  # systemd creates the work directory when it sits under /var/lib.
+  linuxStateDirectories =
+    runner:
+    let
+      workDir = linuxWorkDir runner;
+    in
+    lib.optional (workDir != null && lib.hasPrefix "/var/lib/" workDir) (
+      lib.removePrefix "/var/lib/" workDir
+    );
 
   # The tools that a workflow can expect on PATH.
   # `pkgs` is the x86_64-darwin package set for Rosetta runners.
@@ -111,7 +121,7 @@ let
       # Default workDir is under RuntimeDirectory, which is backed by tmpfs.
       # Use a separate StateDirectory for workDir to avoid self-referential
       # symlinks (NixOS/nixpkgs#289422).
-      StateDirectory = [ "github-runner-work/${runner.service}" ];
+      StateDirectory = linuxStateDirectories runner;
 
       # needed for Cachix installation to work
       ReadWritePaths = [ "/nix/var/nix/profiles/per-user/" ];
@@ -128,16 +138,11 @@ let
   # Settings for the launchd daemon of one runner.
   darwinService = _runner: {
     serviceConfig = {
-      # Restart the service if it crashes
-      # TODO: figure out if we can wait for the token to be available.
-      # launchd doesn't allow ordering of jobs.
-      # I think what's happening is that the agenix job isn't done before we launch the runner, which then isn't restarted.
-      # Some runners make it in time, some don't.
-      # We can use wait4path, but that's not easy to work into the existing module.
+      # launchd cannot order jobs, so retry if the secret is not ready.
       KeepAlive = overrideUpstream true;
 
       # Don't run on load.
-      # Wait for agenix to create the token and use that as a trigger.
+      # Wait for the secret provider to create the token and use that as a trigger.
       # The token is automatically added to WatchPaths.
       RunAtLoad = overrideUpstream false;
     };
@@ -171,9 +176,9 @@ let
         inherit (group) tokenFile serviceOverrides;
         url = "https://github.com/${group.githubOrganization}";
         # Replace an existing runner with the same name, instead of erroring out.
-        replace = true;
+        replace = lib.mkDefault true;
         # Re-launch the runner after each job.
-        ephemeral = true;
+        ephemeral = lib.mkDefault true;
         nodeRuntimes = [
           "node20"
           "node24"
@@ -228,71 +233,7 @@ in
     runners = lib.mkOption {
       description = "Groups of GitHub runners with the same settings.";
       default = { };
-      type = lib.types.attrsOf (
-        lib.types.submodule {
-          options = {
-            enable = lib.mkEnableOption "this group of GitHub runners";
-
-            count = lib.mkOption {
-              type = lib.types.int;
-              default = 1;
-              description = "The number of runners in the group.";
-            };
-
-            namePrefix = lib.mkOption {
-              type = lib.types.str;
-              default = "github-runner-";
-              description = "The prefix of the runner name that GitHub shows.";
-            };
-
-            servicePrefix = lib.mkOption {
-              type = lib.types.str;
-              default = "";
-              description = "The prefix of the service name on the machine.";
-            };
-
-            githubOrganization = lib.mkOption {
-              type = lib.types.str;
-              description = "The GitHub organization to register the runners with.";
-            };
-
-            tokenFile = lib.mkOption {
-              type = lib.types.path;
-              description = ''
-                A path to a file containing a PAT token.
-
-                Create a fine-grained PAT token for an organization with the following permissions:
-                - Self-hosted runners: Read and Write
-
-                https://github.com/settings/personal-access-tokens/new
-              '';
-            };
-
-            rosetta.enable = lib.mkEnableOption "Rosetta on Apple Silicon";
-
-            extraPackages = lib.mkOption {
-              type = lib.types.listOf lib.types.package;
-              default = [ ];
-              description = "Extra packages to add to the runner PATH.";
-            };
-
-            serviceOverrides = lib.mkOption {
-              type = lib.types.attrs;
-              default = { };
-              description = ''
-                Extra settings for the systemd or launchd service of each runner.
-                Use this to, for example, adjust the sandboxing options.
-              '';
-            };
-
-            extraService = lib.mkOption {
-              type = lib.types.anything;
-              default = { };
-              description = "Extra `services.github-runners.<name>` settings for each runner.";
-            };
-          };
-        }
-      );
+      type = lib.types.attrsOf (lib.types.submodule ./github-runners/runner-group.nix);
     };
   };
 
@@ -321,7 +262,7 @@ in
       (lib.mkIf isDarwin {
         # TODO: /private/var and /var are the same, but a recent software upgrade triggers a nix-darwin assertion.
         # The home path for this user was changed from /var/ to /private/var.
-        users."_github-runner".home = lib.mkForce "/private/var/lib/github-runners";
+        users."_github-runner".home = overrideUpstream "/private/var/lib/github-runners";
         groups.${cfg.group}.members = [ "_github-runner" ];
       })
     ];

@@ -9,19 +9,11 @@
 {
   imports = [ ./common.nix ];
 
-  services.cachix-agent.verbose = true;
+  services.cachix-agent.verbose = lib.mkDefault true;
 
-  virtualisation.docker.enable = true;
+  virtualisation.docker.enable = lib.mkDefault true;
 
-  cachix.github-runners = {
-    extraGroups = [ "docker" ];
-
-    runners.default.serviceOverrides = {
-      ReadWritePaths = [
-        (toString config.age.secrets.nix-access-tokens.path)
-      ];
-    };
-  };
+  cachix.github-runners.extraGroups = lib.optional config.virtualisation.docker.enable "docker";
 
   # Interrupted Nix builds can leave their temporary directories behind.
   # Build logs are disabled in common.nix; clean up logs written before that
@@ -47,6 +39,4 @@
 
   # For certain services, like clickhouse.
   time.timeZone = lib.mkDefault "UTC";
-
-  system.stateVersion = "23.11";
 }

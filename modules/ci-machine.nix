@@ -27,19 +27,13 @@ in
       };
     };
 
-    adminUsers = lib.mkOption {
-      type = lib.types.listOf lib.types.str;
-      default = [ "root" ];
+    nixAccessTokensFile = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
       description = ''
-        Users that admins log in as over SSH.
-        They get the admin SSH keys and are trusted by Nix.
+        A Nix configuration file with `access-tokens`, included in `nix.conf`.
+        The runners read it too, so it must be readable by their group.
       '';
-    };
-
-    adminKeys = lib.mkOption {
-      type = lib.types.listOf lib.types.str;
-      default = [ ];
-      description = "SSH public keys of the admins.";
     };
 
     runners = lib.mkOption {
@@ -89,13 +83,7 @@ in
       cores = cfg.cores;
       min-free = cfg.minFree * GiB;
       max-free = cfg.maxFree * GiB;
-      # Nix always trusts root.
-      trusted-users = lib.remove "root" cfg.adminUsers;
     };
-
-    users.users = lib.genAttrs cfg.adminUsers (_: {
-      openssh.authorizedKeys.keys = cfg.adminKeys;
-    });
 
     services.cachix-agent.enable = true;
     services.openssh.enable = true;

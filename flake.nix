@@ -12,7 +12,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    darwin = {
+    nix-darwin = {
       url = "github:nix-darwin/nix-darwin/nix-darwin-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
@@ -21,7 +21,7 @@
       url = "github:cachix/cachix-deploy-flake";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.disko.follows = "disko";
-      inputs.darwin.follows = "darwin";
+      inputs.darwin.follows = "nix-darwin";
       inputs.nixos-anywhere.inputs.flake-parts.follows = "devenv/flake-parts";
       inputs.nixos-anywhere.inputs.treefmt-nix.follows = "devenv/nixd/treefmt-nix";
     };
@@ -59,14 +59,69 @@
   outputs =
     inputs:
     let
-      projectLib = import ./lib { inherit inputs; };
-      machines = import ./machines {
-        inherit inputs;
-        sshKeys = import ./ssh-keys.nix;
+      projectLib = import ./lib {
+        inherit (inputs.nixpkgs) lib;
+        overlaysFor = (import ./overlays { inherit inputs; }).forSystem;
       };
+      nixpkgsConfig = {
+        # The GitHub runner requires the EOL nodejs 20.
+        allowInsecurePredicate =
+          pkg:
+          builtins.elem (inputs.nixpkgs.lib.getName pkg) [
+            "nodejs"
+            "nodejs-slim"
+          ]
+          && inputs.nixpkgs.lib.versions.major (inputs.nixpkgs.lib.getVersion pkg) == "20";
+      };
+      bootstrapDarwinFor = pkgs: pkgs.callPackage ./scripts/bootstrap-darwin { };
+      pkgsForSystem = projectLib.pkgsFor {
+        inherit inputs;
+        config = nixpkgsConfig;
+      };
+      machines = projectLib.mkMachines {
+        inherit inputs pkgsForSystem;
+        machines = import ./machines { inherit inputs; };
+      };
+      deployment = projectLib.mkFlake { inherit machines; };
+      forAllSystems =
+        f:
+        inputs.nixpkgs.lib.genAttrs [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" ] (
+          system:
+          f {
+            inherit system;
+            pkgs = pkgsForSystem system;
+          }
+        );
     in
-    (projectLib.mkFlake { inherit machines; })
+    deployment
     // {
+      packages = forAllSystems (
+        { system, pkgs }:
+        deployment.packages.${system} or { }
+        // {
+          inherit (pkgs) nix-ci nix-clean-stale-state;
+          bootstrap-darwin = bootstrapDarwinFor pkgs;
+        }
+      );
+
+      devShells = forAllSystems (
+        { system, pkgs }:
+        {
+          default = pkgs.mkShell {
+            buildInputs = [
+              inputs.cachix-deploy-flake.packages.${system}.bootstrapHetzner
+              (bootstrapDarwinFor pkgs)
+              inputs.agenix.packages.${system}.default
+            ];
+          };
+        }
+      );
+
+      formatter = forAllSystems ({ pkgs, ... }: pkgs.nixfmt);
+
       lib = projectLib;
+
+      nixosModules.default = ./profiles/linux-runner.nix;
+      darwinModules.default = ./profiles/macos-runner.nix;
     };
 }

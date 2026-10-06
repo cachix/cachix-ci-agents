@@ -23,18 +23,6 @@
   # Could be SIP related? We run our agent as root.
   security.pam.services.sudo_local.enable = false;
 
-  # x86_64-darwin runners through Rosetta. Switched off for now.
-  cachix.github-runners.runners."x86_64-darwin" = {
-    enable = false;
-    count = config.cachix.machine.runners;
-    rosetta.enable = true;
-    githubOrganization = "cachix";
-    namePrefix = "${config.networking.hostName}-x86_64-";
-    servicePrefix = "x86_64-";
-    tokenFile = config.age.secrets.github-runner-token.path;
-    extraPackages = [ pkgs.devenv-x86 ];
-  };
-
   # required on M1
   programs.zsh.enable = true;
   programs.zsh.interactiveShellInit = ''
@@ -75,6 +63,4 @@
   documentation.man.enable = lib.mkForce false;
   documentation.info.enable = lib.mkForce false;
   documentation.doc.enable = lib.mkForce false;
-
-  system.stateVersion = 5;
 }

@@ -72,25 +72,38 @@ cd secrets
 agenix -e <NAME>.age -i ~/.ssh/<publickey>
 ```
 
-# Reusing the machine library
-
-The flake exposes a package-set-independent library constructor as
-`lib.mkLib`. Downstream flakes can provide their own inputs and `pkgsFor`
-function while reusing the NixOS, nix-darwin, bootstrap, and Cachix Deploy
-assembly:
+# Using the machine library
 
 ```nix
-ciLib = cachix-ci-agents.lib.mkLib {
-  inherit (inputs) nixpkgs darwin cachix-deploy-flake;
-  pkgsFor = system: import inputs.nixpkgs { inherit system; };
-};
+outputs = inputs:
+  let
+    ci = inputs.cachix-ci-agents.lib;
+    pkgsForSystem = ci.pkgsFor {
+      inherit inputs;
+      config = { };
+      overlays = [ ];
+    };
+    machines = ci.mkMachines {
+      inherit inputs pkgsForSystem;
+      machines = {
+        my-linux-runner = {
+          system = "x86_64-linux";
+          hardware = { cpus = 16; memory = 64; disk = 900; };
+          modules = [
+            ./profiles/my-org.nix
+            { system.stateVersion = "26.05"; }
+          ];
+        };
+        my-mac-runner = {
+          system = "aarch64-darwin";
+          hardware = { cpus = 8; memory = 16; disk = 450; };
+          modules = [
+            ./profiles/my-org.nix
+            { system.stateVersion = 5; }
+          ];
+        };
+      };
+    };
+  in
+  ci.mkFlake { inherit machines; };
 ```
-
-Machine descriptions are attribute sets with `kind`, `system`, and `modules`.
-They may also provide `bootstrap`, `specialArgs`, and `defaultPackage`.
-
-The main entry points are:
-
-- `evalMachines`: evaluate an attribute set of machine descriptions.
-- `mkFlake`: produce configurations and named deployment packages.
-- `mkDeploySpec`: produce one aggregate Cachix Deploy specification.
