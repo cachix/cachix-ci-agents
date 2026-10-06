@@ -9,6 +9,8 @@
 {
   imports = [ ./common.nix ];
 
+  services.cachix-agent.verbose = true;
+
   virtualisation.docker.enable = true;
 
   cachix.github-runners = {

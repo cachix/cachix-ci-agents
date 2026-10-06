@@ -9,6 +9,15 @@
 {
   imports = [ ./common.nix ];
 
+  # nix-darwin's cachix-agent module has no verbose option; override its script
+  # to pass the global --verbose flag while preserving credential loading.
+  # TODO: Upstream services.cachix-agent.verbose to nix-darwin.
+  launchd.daemons.cachix-agent.script = lib.mkForce ''
+    . ${config.services.cachix-agent.credentialsFile}
+
+    exec ${lib.getExe config.services.cachix-agent.package} --verbose deploy agent ${config.services.cachix-agent.name}
+  '';
+
   # Disable Touch ID and Watch ID pam integrations.
   # There's a permission error writing to /etc/pam.d.
   # Could be SIP related? We run our agent as root.
