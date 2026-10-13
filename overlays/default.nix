@@ -13,7 +13,7 @@ let
 
       # Run the latest-latest Nix
       nix-ci = final.callPackage ../pkgs/nix-ci.nix {
-        nix = inputs.nixpkgs-unstable.legacyPackages.${system}.nixVersions.latest;
+        nix = final.nixVersions.latest;
       };
 
       nix-clean-stale-state = final.callPackage ../pkgs/nix-clean-stale-state.nix { };
