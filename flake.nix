@@ -80,7 +80,7 @@
         inherit inputs pkgsForSystem;
         machines = import ./machines { inherit inputs; };
       };
-      deployment = projectLib.mkFlake { inherit machines; };
+      deployment = projectLib.mkFlake { inherit machines pkgsForSystem; };
       forAllSystems =
         f:
         inputs.nixpkgs.lib.genAttrs [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" ] (

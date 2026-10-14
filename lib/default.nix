@@ -85,20 +85,38 @@ let
     ) machines;
 
   mkFlake =
-    { machines }:
+    { machines, pkgsForSystem }:
     let
       byClass = class: lib.filterAttrs (_name: machine: machine.class == class) machines;
+
+      # Select by build platform so cross-compiled machines use the right builder.
+      buildSystem = machine: machine.pkgs.stdenv.buildPlatform.system;
+      systems = lib.unique (map buildSystem (builtins.attrValues machines));
+      machinesFor = system: lib.filterAttrs (_name: machine: buildSystem machine == system) machines;
+      machinePackages = lib.mapAttrs (_: machine: machine.config.system.build.toplevel);
+
+      # Referencing the derivations in JSON makes them dependencies of the spec.
+      mkDeploySpec =
+        pkgs: selectedMachines:
+        pkgs.writeText "deploy.json" (builtins.toJSON { agents = machinePackages selectedMachines; });
+
+      packagesFor =
+        system:
+        let
+          pkgs = pkgsForSystem system;
+          deploy = mkDeploySpec pkgs machines;
+        in
+        machinePackages (machinesFor system)
+        // {
+          inherit deploy;
+          default = deploy;
+          "deploy-${system}" = mkDeploySpec pkgs (machinesFor system);
+        };
     in
     {
       nixosConfigurations = byClass "nixos";
       darwinConfigurations = byClass "darwin";
-      # Group by the build platform, so that cross-compiled machines are buildable on their build system.
-      packages = lib.foldlAttrs (
-        packages: name: machine:
-        lib.recursiveUpdate packages {
-          ${machine.pkgs.stdenv.buildPlatform.system}.${name} = machine.config.system.build.toplevel;
-        }
-      ) { } machines;
+      packages = lib.genAttrs systems packagesFor;
     };
 in
 {

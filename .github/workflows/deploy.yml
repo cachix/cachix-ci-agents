@@ -26,10 +26,6 @@ jobs:
           - [ubuntu-24.04-arm]
           - [macos-latest]
     runs-on: ${{ matrix.os }}
-    outputs:
-      gh-runner-x86_64-linux-01: ${{ steps.agent.outputs.gh-runner-x86_64-linux-01 }}
-      gh-runner-aarch64-linux-01: ${{ steps.agent.outputs.gh-runner-aarch64-linux-01 }}
-      gh-runner-aarch64-darwin-02: ${{ steps.agent.outputs.gh-runner-aarch64-darwin-02 }}
     steps:
       - run: sudo rm -rf /opt&
       - uses: actions/checkout@v7
@@ -41,23 +37,17 @@ jobs:
       - name: Version info
         run: nix --version
       - name: Build
-        id: agent
         run: |
           system=$(nix eval --raw --impure --expr 'builtins.currentSystem')
-          case "$system" in
-            x86_64-linux) machines="gh-runner-x86_64-linux-01" ;;
-            aarch64-linux) machines="gh-runner-aarch64-linux-01" ;;
-            aarch64-darwin) machines="gh-runner-aarch64-darwin-02" ;;
-            *) echo "No machines for $system" >&2; exit 1 ;;
-          esac
-          for machine in $machines; do
-            echo "Building $machine"
-            out_path=$(nix build -L --print-out-paths --accept-flake-config ".#$machine")
-            echo "Built $out_path"
-            echo "$machine=$out_path" >> "$GITHUB_OUTPUT"
-          done
+          nix build -L --print-out-paths --accept-flake-config ".#deploy-$system"
+          cp result deploy.json
           # Wait for all paths to flush to daemon. TODO: fix upstream.
           sleep 3
+      - uses: actions/upload-artifact@v7
+        with:
+          name: deploy-${{ runner.os }}-${{ runner.arch }}
+          path: deploy.json
+          if-no-files-found: error
 
   deploy:
     if: github.ref == 'refs/heads/main'
@@ -70,17 +60,13 @@ jobs:
         with:
           name: ${{ env.CACHE_NAME }}
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: deploy-*
+          path: deploy-specs
       - name: Deploy
         env:
           CACHIX_ACTIVATE_TOKEN: ${{ secrets.CACHIX_ACTIVATE_TOKEN }}
         run: |
-          cat << EOF >> deploy.json
-          {
-            "agents": {
-              "gh-runner-x86_64-linux-01": "${{ needs.build.outputs.gh-runner-x86_64-linux-01 }}",
-              "gh-runner-aarch64-linux-01": "${{ needs.build.outputs.gh-runner-aarch64-linux-01 }}",
-              "gh-runner-aarch64-darwin-02": "${{ needs.build.outputs.gh-runner-aarch64-darwin-02 }}"
-            }
-          }
-          EOF
+          jq -s '{agents: (map(.agents) | add)}' deploy-specs/*/deploy.json > deploy.json
           cachix deploy activate deploy.json
