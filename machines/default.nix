@@ -48,26 +48,6 @@ in
     ];
   };
 
-  gh-runner-aarch64-darwin-01 = {
-    system = "aarch64-darwin";
-    hardware = {
-      cpus = 8;
-      memory = 16;
-      disk = 228;
-    };
-    modules = [
-      ../profiles/cachix.nix
-      inputs.agenix.darwinModules.default
-      {
-        users.users.hetzner.openssh.authorizedKeys.keys = builtins.attrValues sshKeys.admins;
-        nix.settings.trusted-users = [ "hetzner" ];
-        # Limit each build to 2 of the 8 CPUs.
-        cachix.machine.cores = 2;
-        system.stateVersion = 5;
-      }
-    ];
-  };
-
   gh-runner-aarch64-darwin-02 = {
     system = "aarch64-darwin";
     hardware = {

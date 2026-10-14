@@ -29,7 +29,6 @@ jobs:
     outputs:
       gh-runner-x86_64-linux-01: ${{ steps.agent.outputs.gh-runner-x86_64-linux-01 }}
       gh-runner-aarch64-linux-01: ${{ steps.agent.outputs.gh-runner-aarch64-linux-01 }}
-      gh-runner-aarch64-darwin-01: ${{ steps.agent.outputs.gh-runner-aarch64-darwin-01 }}
       gh-runner-aarch64-darwin-02: ${{ steps.agent.outputs.gh-runner-aarch64-darwin-02 }}
     steps:
       - run: sudo rm -rf /opt&
@@ -48,7 +47,7 @@ jobs:
           case "$system" in
             x86_64-linux) machines="gh-runner-x86_64-linux-01" ;;
             aarch64-linux) machines="gh-runner-aarch64-linux-01" ;;
-            aarch64-darwin) machines="gh-runner-aarch64-darwin-01 gh-runner-aarch64-darwin-02" ;;
+            aarch64-darwin) machines="gh-runner-aarch64-darwin-02" ;;
             *) echo "No machines for $system" >&2; exit 1 ;;
           esac
           for machine in $machines; do
@@ -80,7 +79,6 @@ jobs:
             "agents": {
               "gh-runner-x86_64-linux-01": "${{ needs.build.outputs.gh-runner-x86_64-linux-01 }}",
               "gh-runner-aarch64-linux-01": "${{ needs.build.outputs.gh-runner-aarch64-linux-01 }}",
-              "gh-runner-aarch64-darwin-01": "${{ needs.build.outputs.gh-runner-aarch64-darwin-01 }}",
               "gh-runner-aarch64-darwin-02": "${{ needs.build.outputs.gh-runner-aarch64-darwin-02 }}"
             }
           }
