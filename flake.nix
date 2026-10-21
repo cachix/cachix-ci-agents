@@ -61,16 +61,7 @@
         inherit (inputs.nixpkgs) lib;
         overlaysFor = (import ./overlays { inherit inputs; }).forSystem;
       };
-      nixpkgsConfig = {
-        # The GitHub runner requires the EOL nodejs 20.
-        allowInsecurePredicate =
-          pkg:
-          builtins.elem (inputs.nixpkgs.lib.getName pkg) [
-            "nodejs"
-            "nodejs-slim"
-          ]
-          && inputs.nixpkgs.lib.versions.major (inputs.nixpkgs.lib.getVersion pkg) == "20";
-      };
+      nixpkgsConfig = { };
       bootstrapDarwinFor = pkgs: pkgs.callPackage ./scripts/bootstrap-darwin { };
       pkgsForSystem = projectLib.pkgsFor {
         inherit inputs;

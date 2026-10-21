@@ -92,7 +92,6 @@ let
       less
       ncurses
       netcat
-      nodejs_20
       procps
       time
       zstd
@@ -178,10 +177,6 @@ let
         replace = lib.mkDefault true;
         # Re-launch the runner after each job.
         ephemeral = lib.mkDefault true;
-        nodeRuntimes = [
-          "node20"
-          "node24"
-        ];
         extraPackages =
           runnerPackages (if group.rosetta.enable then pkgs.pkgsx86_64Darwin else pkgs)
           ++ lib.optionals isLinux linuxRunnerPackages
