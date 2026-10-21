@@ -66,7 +66,6 @@ let
     pkgs: with pkgs; [
       # custom
       cachix
-      tmate
       jq
       git
       gh
