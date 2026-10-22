@@ -13,8 +13,7 @@
     ../modules/secrets.nix
   ];
 
-  # CVE-2026-111943: mirror the upstream NixOS mitigation on nix-darwin too.
-  # The system CA modules override cacert's package-level blacklist.
+  # CVE-2026-111943: distrust compromised Comodo and emSign root certificates.
   security.pki.caCertificateBlacklist = [
     "Comodo AAA Services root"
     "emSign ECC Root CA - G3"

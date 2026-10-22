@@ -8,17 +8,6 @@ let
       system = prev.stdenv.hostPlatform.system;
     in
     {
-      # CVE-2026-111943: also protect packages using cacert directly, until
-      # the cacert update reaches nixos-26.05.
-      cacert = prev.cacert.override {
-        blacklist = [
-          "Comodo AAA Services root"
-          "emSign ECC Root CA - G3"
-          "emSign Root CA - C1"
-          "emSign ECC Root CA - C3"
-        ];
-      };
-
       cachix = inputs.cachix-flake.packages.${system}.default;
       devenv = inputs.devenv.packages.${system}.devenv;
 
