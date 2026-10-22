@@ -3,6 +3,12 @@
 let
   sshKeys = import ../ssh-keys.nix;
 
+  linuxModules = [
+    inputs.srvos.nixosModules.server
+    inputs.agenix.nixosModules.default
+    ../profiles/cachix.nix
+  ];
+
   disks = [
     "/dev/nvme0n1"
     "/dev/nvme1n1"
@@ -16,9 +22,7 @@ in
       memory = 64;
       disk = 938;
     };
-    modules = [
-      ../profiles/cachix.nix
-      inputs.agenix.nixosModules.default
+    modules = linuxModules ++ [
       inputs.disko.nixosModules.disko
       (import ../disko/mdadm.nix { inherit disks; })
       ../profiles/hetzner-dedicated.nix
@@ -37,9 +41,7 @@ in
       memory = 32;
       disk = 299;
     };
-    modules = [
-      ../profiles/cachix.nix
-      inputs.agenix.nixosModules.default
+    modules = linuxModules ++ [
       (import ../profiles/hetzner-cloud.nix { inherit inputs; })
       {
         users.users.root.openssh.authorizedKeys.keys = builtins.attrValues sshKeys.admins;
