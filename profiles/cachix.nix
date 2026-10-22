@@ -48,6 +48,12 @@
     }
 
     (lib.mkIf pkgs.stdenv.isLinux {
+      # Wait for agenix to rotate secrets and set permissions before mounting them.
+      cachix.github-runners.runners.default.systemd = {
+        requires = [ "agenix-chown.service" ];
+        after = [ "agenix-chown.service" ];
+      };
+
       # The runners only read the access tokens. `ProtectSystem = "strict"`
       # blocks writes, not reads, so this entry may not be needed.
       # Unverified. Kept to leave the deployed units unchanged.

@@ -115,6 +115,8 @@ let
   # These merge with the upstream module and with `serviceOverrides` through
   # the systemd option types: lists are concatenated, other values conflict.
   linuxService = runner: {
+    inherit (runner.group.systemd) after requires;
+
     serviceConfig = {
       # Default workDir is under RuntimeDirectory, which is backed by tmpfs.
       # Use a separate StateDirectory for workDir to avoid self-referential

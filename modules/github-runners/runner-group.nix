@@ -99,6 +99,24 @@
       description = "Extra packages to add to the runner PATH.";
     };
 
+    systemd.after = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+      description = ''
+        Linux only. Order each runner after these systemd units when both
+        are started. This does not start the listed units.
+      '';
+    };
+
+    systemd.requires = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+      description = ''
+        Linux only. Systemd units required by each runner.
+        Also set `systemd.after` to wait for them to finish starting.
+      '';
+    };
+
     serviceOverrides = lib.mkOption {
       type = lib.types.attrs;
       default = { };
