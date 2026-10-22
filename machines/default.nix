@@ -30,6 +30,9 @@ in
         users.users.root.openssh.authorizedKeys.keys = builtins.attrValues sshKeys.admins;
         boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
         system.stateVersion = "23.11";
+
+        # Temporarily allow deployment to rename the host from "linux".
+        srvos.detect-hostname-change.enable = false;
       }
     ];
   };
