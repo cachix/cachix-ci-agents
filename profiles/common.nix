@@ -13,14 +13,6 @@
     ../modules/secrets.nix
   ];
 
-  # CVE-2026-111943: distrust compromised Comodo and emSign root certificates.
-  security.pki.caCertificateBlacklist = [
-    "Comodo AAA Services root"
-    "emSign ECC Root CA - G3"
-    "emSign Root CA - C1"
-    "emSign ECC Root CA - C3"
-  ];
-
   nix.package = lib.mkDefault pkgs.nix-ci;
   nix.channel.enable = lib.mkDefault false;
 
