@@ -27,7 +27,6 @@ jobs:
           - [macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - run: sudo rm -rf /opt&
       - uses: actions/checkout@v7
       - uses: cachix/install-nix-action@v31
       - uses: cachix/cachix-action@v17
